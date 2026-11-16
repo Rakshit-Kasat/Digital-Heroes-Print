@@ -25,20 +25,21 @@ Locked choices: GBP + 20% VAT (setting) · Stripe test mode · Gmail SMTP for em
 - [x] Phase 7 — admin console (1fdff79). VERIFIED: filters, stage move proof->production (gate), print-file downloads (PDF/ZIP), Xero CSV row, last-admin DB guard, customer redirected away from /admin. `npm run build` clean (40 routes, all PPR).
   KNOWN (dev only): after an admin action that refreshes the auth cookie, Next dev throws "InvariantError ... cookies object" on re-render (makeUntrackedCookiesWithDevWarnings). Data saves fine. Re-check on the deployed build.
 - [ ] Phase 8 — mobile pass, critic + security-auditor, /gauntlet
-- [ ] Phase 9 — deploy (gate: Rakshit checks preview), Stripe webhook endpoint + secret
+- [x] Phase 9 — deployed to https://digital-heroes-print.vercel.app (first deploy went straight to production; Rakshit told). Stripe test webhook we_1UcW2ORz60Mh3UU0vClwpkcE -> /api/stripe/webhook, secret in Vercel prod env (forged request -> 'Invalid signature', VERIFIED). NEXT_PUBLIC_APP_URL set for production. Supabase Auth URLs not needed (signup pre-confirms via admin API, no auth emails).
 - [ ] Phase 10 — README, DECISIONS.md, LEARN.md, /handover, /retro
-- [ ] Rakshit: Gmail App Password into SMTP_PASS (emails currently fail: 535 bad credentials; logged in email_log)
-- [x] Vercel (2026-11-17): CLI 65.16.0. The NEW account (`g2hklic-7240`) is logged in through a separate config dir, so the old global login (`teamsocialtrap-7165`) is untouched. EVERY vercel command must carry `-Q "C:/Users/raksh/.vercel-dh" --scope digital-heroes-print`. The project `digital-heroes-print` is linked (.vercel/, gitignored). 12 env vars are set for production+preview (secrets are sensitive). NOT set yet: NEXT_PUBLIC_APP_URL (production only, after the domain is known), STRIPE_WEBHOOK_SECRET. `src/lib/app-url.ts` falls back to the Vercel deployment URL.
+- [x] Gmail App Password set; SMTP login VERIFIED 2026-11-17, updated on Vercel.
+- [x] Vercel (2026-11-17): CLI 65.16.0. The NEW account (`g2hklic-7240`) is logged in through a separate config dir, so the old global login (`teamsocialtrap-7165`) is untouched. EVERY vercel command must carry `-Q "C:/Users/raksh/.vercel-dh" --scope digital-heroes-print`. The project `digital-heroes-print` is linked (.vercel/, gitignored). 12 env vars are set for production+preview (secrets are sensitive). `src/lib/app-url.ts` falls back to the Vercel deployment URL. First deploy went to PRODUCTION (CLI default for a new project): https://digital-heroes-print.vercel.app (public pages 200; /admin, /account, /files redirect to login). Later previews: `vercel deploy` is preview only once a production deploy exists; use `--target preview` to be explicit.
 
 ## Usage log
+- Deploy session 2026-11-17 (Opus, no agents): 5h 77% -> ~86%, week 14%.
 - Build session 2026-11-16/17 (Opus): 5h window at 68% after phases 1-6 (customer side); week 12%.
 - Planning session (Opus): 5h window 10% -> 15%, weekly reset mid-session (now 3%).
 - Accounts by Claude in Chrome + scaffold (Opus, no agents): 5h 15% -> ~20%, week 3% -> ~6%, context 44% -> ~70%. Screenshots are the main cost.
 
 ## Next step (resume here)
-1. Phase 8: mobile pass at 375px (home, product, designer, account, order, admin board); then critic (Opus) + security-auditor (Haiku) agents (pre-approved). Security checks to include: customer GET /files/print/<id> must 404; customer cannot call admin actions; RLS check script.
-2. Seed copy fix: "--" double hyphen in race bibs description (scripts/seed.ts).
-3. Phase 9: `vercel link`/deploy with VERCEL_TOKEN to team digital-heroes-print, set env vars (NEXT_PUBLIC_APP_URL = deployed URL), preview -> Rakshit checks -> production. Stripe: add webhook endpoint https://<domain>/api/stripe/webhook (checkout.session.completed, checkout.session.async_payment_succeeded), put signing secret in Vercel env STRIPE_WEBHOOK_SECRET. Supabase Auth: set Site URL + redirect URL to the domain.
+1. Rakshit: live end-to-end test on https://digital-heroes-print.vercel.app (Claude may not type credentials on the production host): sign up, design, pay with 4242 4242 4242 4242, check email + Stripe webhook delivery in the Stripe dashboard, admin flow.
+2. UI/UX pass (waiting on Rakshit's choice: ux-auditor + design-critique/accessibility skills with own components, or also shadcn after /safe-check). Mobile pass at 375px.
+3. critic (Opus) + security-auditor (Haiku) agents (pre-approved). Include: customer GET /files/print/<id> must 404; customer cannot call admin actions; RLS check script. Fix, then `vercel deploy --prod -Q "C:/Users/raksh/.vercel-dh" --scope digital-heroes-print`.
 4. Phase 10: README (credentials from scripts/seed.ts, schema), docs/DECISIONS.md, docs/LEARN.md, /handover, /retro.
 
 ## Older notes
