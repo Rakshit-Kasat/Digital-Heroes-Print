@@ -21,7 +21,7 @@ import { ProofUpload } from "./proof-upload";
 
 export const metadata: Metadata = { title: "Job" };
 
-const when = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const when = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" , timeZone: "Europe/London" });
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const KIND_LABEL: Record<string, string> = { pdf: "Print PDF (bleed + crop marks)", png: "Print PNG", svg: "Vector SVG", zip: "CSV merge: one file per row (ZIP)", source: "Customer's original file" };
 
@@ -217,7 +217,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
               {item?.csv_path && (<><dt className="text-steel">CSV</dt><dd>{item.csv_rows} rows <a className="link ml-2" href={`/files/csv/${item.id}`}>Download</a></dd></>)}
             </dl>
             <dl className="mt-4 grid grid-cols-[1fr_auto] gap-y-1 border-t border-hairline pt-3">
-              <dt className="text-steel">Unit (after {Math.round(Number(item?.discount_rate ?? 0) * 100)}% tier)</dt><dd className="text-right">{formatMoney(item?.unit_price_pence ?? 0)}</dd>
+              <dt className="text-steel">Unit (after {Math.round(Number(item?.discount_rate ?? 0) * 100)}% tier)</dt><dd className="text-right">{formatMoney(item?.unit_price_pence ?? 0, "GBP", true)}</dd>
               <dt className="text-steel">Subtotal</dt><dd className="text-right">{formatMoney(o.subtotal_pence)}</dd>
               <dt className="text-steel">VAT</dt><dd className="text-right">{formatMoney(o.vat_pence)}</dd>
               <dt className="font-semibold">Total</dt><dd className="text-right font-semibold">{formatMoney(o.total_pence, o.currency)}</dd>

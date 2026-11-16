@@ -18,7 +18,7 @@ import { ProofDecision, ReorderButton } from "../../forms";
 
 export const metadata: Metadata = { title: "Order", robots: { index: false } };
 
-const when = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+const when = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" , timeZone: "Europe/London" });
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default function OrderPage(props: PageProps<"/account/orders/[id]">) {
@@ -135,7 +135,7 @@ async function Order({ params }: Pick<PageProps<"/account/orders/[id]">, "params
               {item?.csv_rows ? (<><dt className="text-steel">Names</dt><dd>{item.csv_rows} rows from your CSV</dd></>) : null}
             </dl>
             <dl className="mt-4 grid grid-cols-[1fr_auto] gap-y-1.5 border-t border-hairline pt-3">
-              <dt className="text-steel">{item?.quantity.toLocaleString("en-GB")} × {formatMoney(item?.unit_price_pence ?? 0)}{item?.discount_rate ? ` (${Math.round(item.discount_rate * 100)}% volume discount)` : ""}</dt>
+              <dt className="text-steel">{item?.quantity.toLocaleString("en-GB")} × {formatMoney(item?.unit_price_pence ?? 0, "GBP", true)}{item?.discount_rate ? ` (${Math.round(item.discount_rate * 100)}% volume discount)` : ""}</dt>
               <dd className="text-right">{formatMoney((item?.line_total_pence ?? 0) - (snap?.setupPence ?? 0))}</dd>
               {snap?.setupPence ? (<><dt className="text-steel">Setup</dt><dd className="text-right">{formatMoney(snap.setupPence)}</dd></>) : null}
               <dt className="text-steel">Subtotal</dt><dd className="text-right">{formatMoney(data.subtotal_pence)}</dd>

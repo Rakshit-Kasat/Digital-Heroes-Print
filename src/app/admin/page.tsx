@@ -18,7 +18,7 @@ import { StageChip } from "@/components/stage-track";
 
 export const metadata: Metadata = { title: "Job board" };
 
-const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" });
+const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" , timeZone: "Europe/London" });
 
 export default function JobBoard(props: PageProps<"/admin">) {
   return (

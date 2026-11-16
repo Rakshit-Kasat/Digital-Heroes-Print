@@ -39,7 +39,7 @@ interface OrderRow {
   order_items: Array<{ quantity: number; product_snapshot: { name: string; division?: string }; proofs: Array<{ id: string; version: number; status: string }> }>;
 }
 
-const dateFmt = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" });
+const dateFmt = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" , timeZone: "Europe/London" });
 
 async function Dashboard() {
   const user = await requireUser("/account");

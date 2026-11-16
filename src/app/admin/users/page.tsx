@@ -13,7 +13,7 @@ import { ActionForm } from "../forms";
 import { setRole } from "../actions";
 
 export const metadata: Metadata = { title: "Users" };
-const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" });
+const day = new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric" , timeZone: "Europe/London" });
 
 export default function UsersPage(props: PageProps<"/admin/users">) {
   return (
