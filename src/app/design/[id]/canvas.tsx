@@ -140,8 +140,8 @@ export function DesignCanvas({ layout, imageUrls, selectedId, onSelect, onLive, 
       {/* The bleed strip is cut off: wash it out so customers see what is lost. */}
       <path d={`M${-b} ${-b}h${W + 2 * b}v${H + 2 * b}h${-(W + 2 * b)}z M0 0v${H}h${W}v${-H}z`} fill="#ffffff" fillOpacity={0.55} fillRule="evenodd" pointerEvents="none" />
 
-      {snap.v && <line x1={W / 2} x2={W / 2} y1={-b} y2={H + b} stroke="#C4105F" strokeWidth={1} vectorEffect="non-scaling-stroke" pointerEvents="none" />}
-      {snap.h && <line y1={H / 2} y2={H / 2} x1={-b} x2={W + b} stroke="#C4105F" strokeWidth={1} vectorEffect="non-scaling-stroke" pointerEvents="none" />}
+      {snap.v && <line x1={W / 2} x2={W / 2} y1={-b} y2={H + b} stroke="#2d5a4b" strokeWidth={1} vectorEffect="non-scaling-stroke" pointerEvents="none" />}
+      {snap.h && <line y1={H / 2} y2={H / 2} x1={-b} x2={W + b} stroke="#2d5a4b" strokeWidth={1} vectorEffect="non-scaling-stroke" pointerEvents="none" />}
 
       {/* Hit areas, in paint order so the top-most element wins. */}
       {doc.elements.map((el) => {
@@ -161,7 +161,7 @@ export function DesignCanvas({ layout, imageUrls, selectedId, onSelect, onLive, 
 
       {sel && (
         <g transform={sel.rotation ? `rotate(${sel.rotation} ${sel.x + sel.w / 2} ${sel.y + sel.h / 2})` : undefined}>
-          <rect x={sel.x} y={sel.y} width={sel.w} height={sel.h} fill="none" stroke="#C4105F" strokeWidth={1.5} vectorEffect="non-scaling-stroke" strokeDasharray={sel.locked ? "4 3" : undefined} pointerEvents="none" />
+          <rect x={sel.x} y={sel.y} width={sel.w} height={sel.h} fill="none" stroke="#2d5a4b" strokeWidth={1.5} vectorEffect="non-scaling-stroke" strokeDasharray={sel.locked ? "4 3" : undefined} pointerEvents="none" />
           {!sel.locked && (
             <>
               {CORNERS.map(([sx, sy]) => (
@@ -169,7 +169,7 @@ export function DesignCanvas({ layout, imageUrls, selectedId, onSelect, onLive, 
                   key={`${sx}${sy}`}
                   x={sel.x + (sx > 0 ? sel.w : 0) - 5 * px} y={sel.y + (sy > 0 ? sel.h : 0) - 5 * px}
                   width={10 * px} height={10 * px}
-                  fill="#fff" stroke="#C4105F" strokeWidth={1.5} vectorEffect="non-scaling-stroke"
+                  fill="#fff" stroke="#2d5a4b" strokeWidth={1.5} vectorEffect="non-scaling-stroke"
                   className={sx === sy ? "cursor-nwse-resize" : "cursor-nesw-resize"}
                   onPointerDown={(e) => begin(e, sel, "resize", [sx, sy])}
                 />
@@ -180,8 +180,8 @@ export function DesignCanvas({ layout, imageUrls, selectedId, onSelect, onLive, 
                 const y0 = below ? sel.y + sel.h : sel.y, dir = below ? 1 : -1;
                 return (
                   <>
-                    <line x1={sel.x + sel.w / 2} x2={sel.x + sel.w / 2} y1={y0} y2={y0 + dir * 18 * px} stroke="#C4105F" strokeWidth={1.5} vectorEffect="non-scaling-stroke" pointerEvents="none" />
-                    <circle cx={sel.x + sel.w / 2} cy={y0 + dir * 22 * px} r={6 * px} fill="#C4105F" className="cursor-grab" onPointerDown={(e) => begin(e, sel, "rotate")}>
+                    <line x1={sel.x + sel.w / 2} x2={sel.x + sel.w / 2} y1={y0} y2={y0 + dir * 18 * px} stroke="#2d5a4b" strokeWidth={1.5} vectorEffect="non-scaling-stroke" pointerEvents="none" />
+                    <circle cx={sel.x + sel.w / 2} cy={y0 + dir * 22 * px} r={6 * px} fill="#2d5a4b" className="cursor-grab" onPointerDown={(e) => begin(e, sel, "rotate")}>
                       <title>Drag to rotate</title>
                     </circle>
                   </>

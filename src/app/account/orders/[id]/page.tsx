@@ -74,7 +74,7 @@ async function Order({ params }: Pick<PageProps<"/account/orders/[id]">, "params
             <h1 className="text-3xl font-extrabold sm:text-4xl">{data.number}</h1>
             <StageChip stage={status} />
           </div>
-          <p className="mt-1 text-steel">{snap?.name} × {item?.quantity.toLocaleString("en-GB")} · placed {when.format(new Date(data.created_at))}</p>
+          <p className="mt-1 text-steel">{snap?.name} × {item?.quantity.toLocaleString("en-GB")}, placed {when.format(new Date(data.created_at))}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {invoice && <a className="btn-secondary" href={`/files/invoice/${data.id}`}>Download invoice {invoice.number}</a>}
@@ -91,18 +91,18 @@ async function Order({ params }: Pick<PageProps<"/account/orders/[id]">, "params
             <>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 id="proof-h" className="text-xl font-bold">Proof v{latest.version}</h2>
-                <span className={`text-sm font-medium ${latest.status === "approved" ? "text-success" : latest.status === "pending" ? "text-accent" : "text-steel"}`}>{PROOF_STATE[latest.status]}</span>
+                <span className={`text-sm font-medium ${latest.status === "approved" ? "text-success" : latest.status === "pending" ? "rounded-sm bg-blade px-2 py-0.5 text-ink" : "text-steel"}`}>{PROOF_STATE[latest.status]}</span>
               </div>
               <figure className="mt-4">
-                <div className="grid place-items-center rounded-md bg-mist p-3 sm:p-6">
+                <div className="mat grid place-items-center rounded-md p-4 [--k:1px] sm:p-8">
                   {/* unoptimized: the file is private, served through a short-lived signed URL, never via the public image cache */}
-                  <Image unoptimized src={`/files/proof/${latest.id}?view`} alt={`Proof version ${latest.version} of ${data.number}`} width={1600} height={1200} loading="eager" className="sheet-shadow h-auto max-h-[60vh] w-auto bg-sheet" />
+                  <Image unoptimized src={`/files/proof/${latest.id}?view`} alt={`Proof version ${latest.version} of ${data.number}`} width={1600} height={1200} loading="eager" className="h-auto max-h-[60vh] w-auto bg-sheet shadow-[4px_4px_0_0_color-mix(in_oklab,var(--color-ink)_35%,transparent)]" />
                 </div>
                 <figcaption className="mt-2 text-xs text-steel">
                   Dashed black line: trim (where it is cut). Dashed pink line: safe area. Anything outside the trim line is bleed and is cut off.
                 </figcaption>
               </figure>
-              {latest.note && <p className="mt-4 rounded-md border-l-4 border-accent bg-accent/5 px-4 py-3 text-sm"><span className="font-semibold">From our studio:</span> {latest.note}</p>}
+              {latest.note && <p className="mt-4 rounded-md bg-mist px-4 py-3 text-sm"><span className="font-semibold">From our studio:</span> {latest.note}</p>}
               <div className="mt-5">
                 {latest.status === "pending" && status === "proof" ? (
                   <ProofDecision proofId={latest.id} version={latest.version} />
@@ -134,7 +134,7 @@ async function Order({ params }: Pick<PageProps<"/account/orders/[id]">, "params
               <dt className="text-steel">Quantity</dt><dd>{item?.quantity.toLocaleString("en-GB")}</dd>
               {item?.csv_rows ? (<><dt className="text-steel">Names</dt><dd>{item.csv_rows} rows from your CSV</dd></>) : null}
             </dl>
-            <dl className="mt-4 grid grid-cols-[1fr_auto] gap-y-1.5 border-t border-hairline pt-3">
+            <dl className="mt-4 grid grid-cols-[1fr_auto] gap-y-1.5 border-t border-hairline pt-3 tabular-nums">
               <dt className="text-steel">{item?.quantity.toLocaleString("en-GB")} × {formatMoney(item ? (item.line_total_pence - (snap?.setupPence ?? 0)) / item.quantity : 0, "GBP", true)}{item?.discount_rate ? ` (${Math.round(item.discount_rate * 100)}% volume discount)` : ""}</dt>
               <dd className="text-right">{formatMoney((item?.line_total_pence ?? 0) - (snap?.setupPence ?? 0))}</dd>
               {snap?.setupPence ? (<><dt className="text-steel">Setup</dt><dd className="text-right">{formatMoney(snap.setupPence)}</dd></>) : null}
@@ -165,15 +165,15 @@ async function Order({ params }: Pick<PageProps<"/account/orders/[id]">, "params
           <ul className="mt-4 grid gap-3 md:grid-cols-2">
             {proofs.map((p) => (
               <li key={p.id} className="panel flex gap-4 p-4">
-                <a href={`/files/proof/${p.id}?view`} target="_blank" rel="noreferrer" className="block w-24 shrink-0 rounded bg-mist p-1.5" aria-label={`Open proof v${p.version} full size`}>
+                <a href={`/files/proof/${p.id}?view`} target="_blank" rel="noreferrer" className="mat block w-24 shrink-0 rounded p-2 [--k:0.5px]" aria-label={`Open proof v${p.version} full size`}>
                   <Image unoptimized src={`/files/proof/${p.id}?view`} alt="" width={200} height={150} className="h-auto w-full bg-sheet" />
                 </a>
                 <div className="min-w-0 text-sm">
-                  <p className="font-semibold">v{p.version} · {PROOF_STATE[p.status]}</p>
+                  <p className="font-semibold">v{p.version}: {PROOF_STATE[p.status]}</p>
                   <ul className="mt-1 space-y-1 text-steel">
                     {[...p.proof_events].sort((a, b) => a.created_at.localeCompare(b.created_at)).map((ev, i) => (
                       <li key={i}>
-                        {ev.action === "created" ? "Sent" : ev.action === "approved" ? "Approved by you" : "You asked for changes"} · {when.format(new Date(ev.created_at))}
+                        {ev.action === "created" ? "Sent" : ev.action === "approved" ? "Approved by you" : "You asked for changes"}, {when.format(new Date(ev.created_at))}
                         {ev.action === "changes_requested" && ev.note ? <span className="block text-ink">“{ev.note}”</span> : null}
                       </li>
                     ))}

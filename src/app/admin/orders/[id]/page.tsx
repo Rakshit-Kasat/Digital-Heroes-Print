@@ -70,6 +70,16 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
   const invoice = Array.isArray(o.invoices) ? o.invoices[0] : o.invoices;
   const events = [...(o.order_events ?? [])].sort((a, b) => a.created_at.localeCompare(b.created_at));
   const snap = item?.product_snapshot;
+  // One plain sentence that tells staff what this job needs now; the buttons below act on it.
+  const nextStep =
+    !o.paid_at ? "Waiting for the customer to pay."
+    : status === "completed" ? "This job is complete."
+    : status === "production" ? "In production. Move it to Completed when the job ships."
+    : !latest ? "No proof yet. Send the first proof below."
+    : latest.status === "pending" ? `Waiting for the customer to approve proof v${latest.version}.`
+    : latest.status === "changes_requested" ? `The customer asked for changes to v${latest.version}. Send a new proof below.`
+    : item?.print_files.length ? "Print files are ready. Move the job to Production."
+    : `Proof v${latest.version} is approved. Generate the print files below.`;
 
   return (
     <div className="mt-4 space-y-6">
@@ -82,7 +92,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
             {!o.paid_at && <span className="chip bg-danger/10 text-danger">Unpaid</span>}
           </div>
           <p className="mt-1 text-sm text-steel">
-            Placed {when.format(new Date(o.created_at))}{o.paid_at ? ` · paid ${when.format(new Date(o.paid_at))}` : ""}{o.reorder_of ? " · reorder" : ""}
+            Placed {when.format(new Date(o.created_at))}{o.paid_at ? `, paid ${when.format(new Date(o.paid_at))}` : ""}{o.reorder_of ? ". This is a reorder." : ""}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -95,8 +105,9 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-6">
           {/* Stage control */}
-          <section aria-labelledby="stage-h" className="panel p-5">
-            <h2 id="stage-h" className="text-lg font-bold">Move the job</h2>
+          <section aria-labelledby="stage-h" className="rounded-lg border-[1.5px] border-ink bg-sheet p-5">
+            <h2 id="stage-h" className="text-sm font-semibold text-steel">Next step</h2>
+            <p className="mt-1 font-display text-xl font-bold text-balance">{nextStep}</p>
             {allowed.length ? (
               <div className="mt-3 flex flex-wrap gap-3">
                 {allowed.map(({ s }) => (
@@ -117,12 +128,12 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
           <section aria-labelledby="proofs-h" className="panel p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 id="proofs-h" className="text-lg font-bold">Proofs</h2>
-              {latest && <span className="text-sm text-steel">Latest: v{latest.version} · {latest.status.replace("_", " ")}</span>}
+              {latest && <span className="text-sm text-steel">Latest is v{latest.version}, {latest.status.replace("_", " ")}</span>}
             </div>
             {latest ? (
               <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                <a href={`/files/proof/${latest.id}?view`} target="_blank" rel="noreferrer" className="block rounded bg-mist p-3" aria-label={`Open proof v${latest.version} full size`}>
-                  <Image unoptimized loading="eager" src={`/files/proof/${latest.id}?view`} alt={`Proof v${latest.version}`} width={800} height={600} className="h-auto w-full bg-sheet" />
+                <a href={`/files/proof/${latest.id}?view`} target="_blank" rel="noreferrer" className="mat block rounded p-4 [--k:1px]" aria-label={`Open proof v${latest.version} full size`}>
+                  <Image unoptimized loading="eager" src={`/files/proof/${latest.id}?view`} alt={`Proof v${latest.version}`} width={800} height={600} className="h-auto w-full bg-sheet shadow-[3px_3px_0_0_color-mix(in_oklab,var(--color-ink)_35%,transparent)]" />
                 </a>
                 <ol className="space-y-3 text-sm">
                   {proofs.map((p) => (
@@ -132,7 +143,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
                       <ul className="mt-1 space-y-0.5 text-xs text-steel">
                         {[...p.proof_events].sort((a, b) => a.created_at.localeCompare(b.created_at)).map((ev, i) => (
                           <li key={i}>
-                            {ev.action.replace("_", " ")} by {ev.profiles ? (ev.profiles.full_name || ev.profiles.email) : "system"} · {when.format(new Date(ev.created_at))}
+                            {ev.action.replace("_", " ")} by {ev.profiles ? (ev.profiles.full_name || ev.profiles.email) : "system"}, {when.format(new Date(ev.created_at))}
                             {ev.note && ev.action !== "created" ? <span className="block text-ink">“{ev.note}”</span> : null}
                           </li>
                         ))}
@@ -149,7 +160,8 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
               {item?.doc ? (
                 <ActionForm action={regenerateProof} submit="Send a new proof from the design" confirm="Confirm: send new version">
                   <input type="hidden" name="orderId" value={o.id} />
-                  <label className="label" htmlFor="regen-note">Note to the customer <span className="font-normal text-steel">(optional)</span></label>
+                  <h3 className="mb-2 font-display text-base font-bold">From the customer&apos;s design</h3>
+                  <label className="label" htmlFor="regen-note">Note sent with this proof <span className="font-normal text-steel">(optional)</span></label>
                   <textarea id="regen-note" name="note" rows={2} maxLength={500} className="field" />
                 </ActionForm>
               ) : null}
@@ -171,7 +183,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
                   <li key={f.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                     <span>
                       <span className="font-medium">{KIND_LABEL[f.kind] ?? f.kind}</span>
-                      <span className="block break-all text-xs text-steel">{f.path.split("/").pop()} · {f.bytes ? `${Math.max(1, Math.round(f.bytes / 1024)).toLocaleString("en-GB")} KB` : ""}</span>
+                      <span className="block break-all text-xs text-steel">{f.path.split("/").pop()}{f.bytes ? ", " : ""}{f.bytes ? `${Math.max(1, Math.round(f.bytes / 1024)).toLocaleString("en-GB")} KB` : ""}</span>
                     </span>
                     <a className="btn-secondary py-1.5 text-sm" href={`/files/print/${f.id}`}>Download</a>
                   </li>
@@ -206,7 +218,8 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
               <dt className="text-steel">Product</dt><dd>{snap?.name}</dd>
               <dt className="text-steel">Range</dt><dd>{snap?.division}</dd>
               <dt className="text-steel">Trim size</dt><dd>{item?.config.widthMm} × {item?.config.heightMm} mm</dd>
-              <dt className="text-steel">Bleed</dt><dd>{snap?.bleed_mm ?? 3} mm · {snap?.dpi ?? 300} dpi</dd>
+              <dt className="text-steel">Bleed</dt><dd>{snap?.bleed_mm ?? 3} mm</dd>
+              <dt className="text-steel">Output</dt><dd>{snap?.dpi ?? 300} dpi</dd>
               <dt className="text-steel">Material</dt><dd>{snap?.material}</dd>
               <dt className="text-steel">Quantity</dt><dd>{item?.quantity.toLocaleString("en-GB")}</dd>
               <dt className="text-steel">Artwork</dt>
@@ -234,7 +247,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
                   <li key={e.id}>
                     <p className="font-medium">{e.from_status ? `${STAGE_LABEL[e.from_status as Stage]} → ` : ""}{STAGE_LABEL[e.to_status as Stage]}</p>
                     {e.note && <p className="text-steel">{e.note}</p>}
-                    <p className="text-xs text-steel">{by ? by.full_name || by.email : "System"} · {when.format(new Date(e.created_at))}</p>
+                    <p className="text-xs text-steel">{by ? by.full_name || by.email : "System"}, {when.format(new Date(e.created_at))}</p>
                   </li>
                 );
               })}
@@ -247,8 +260,8 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
               <ul className="mt-2 space-y-1.5">
                 {emails.map((m, i) => (
                   <li key={i} title={m.error ?? undefined}>
-                    <span className={m.status === "sent" ? "text-success" : m.status === "failed" ? "text-danger" : "text-steel"}>{m.status}</span> · {m.template.replaceAll("_", " ")}
-                    <span className="block text-xs text-steel">{m.to_email} · {when.format(new Date(m.created_at))}</span>
+                    <span className="font-medium">{m.template.replaceAll("_", " ")}</span> <span className={m.status === "sent" ? "text-success" : m.status === "failed" ? "text-danger" : "text-steel"}>{m.status}</span>
+                    <span className="block text-xs text-steel">{m.to_email}, {when.format(new Date(m.created_at))}</span>
                   </li>
                 ))}
               </ul>

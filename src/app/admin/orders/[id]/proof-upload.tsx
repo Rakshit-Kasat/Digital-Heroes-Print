@@ -29,9 +29,10 @@ export function ProofUpload({ orderId, adminId }: { orderId: string; adminId: st
     <form action={run} className="space-y-2">
       <input type="hidden" name="orderId" value={orderId} />
       <input type="hidden" name="path" value={path} />
+      <h3 className="mb-2 font-display text-base font-bold">From an image you made</h3>
       <label className="label" htmlFor="proof-file">Proof image (PNG, up to 15 MB)</label>
       <input ref={input} id="proof-file" type="file" accept=".png,image/png" className="field file:mr-3 file:rounded file:border-0 file:bg-mist file:px-2 file:py-1" onChange={(e) => pick(e.target.files?.[0])} disabled={busy || pending} />
-      <label className="label" htmlFor="upload-note">Note to the customer <span className="font-normal text-steel">(optional)</span></label>
+      <label className="label" htmlFor="upload-note">Note sent with this upload <span className="font-normal text-steel">(optional)</span></label>
       <textarea id="upload-note" name="note" rows={2} maxLength={500} className="field" />
       <div className="flex flex-wrap items-center gap-2">
         <button className="btn-secondary py-2 text-sm" disabled={!path || busy || pending}>{busy ? "Uploading…" : pending ? "Sending…" : "Send as next proof version"}</button>

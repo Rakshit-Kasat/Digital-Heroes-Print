@@ -60,7 +60,7 @@ async function Users({ searchParams }: Pick<PageProps<"/admin/users">, "searchPa
                 <tr key={u.id}>
                   <td className="px-4 py-3">
                     <span className="block font-medium">{u.full_name || "No name"}{u.id === me.id ? " (you)" : ""}</span>
-                    <span className="block text-xs text-steel">{u.email}{u.company ? ` · ${u.company}` : ""}</span>
+                    <span className="block text-xs text-steel">{u.email}{u.company ? `, ${u.company}` : ""}</span>
                   </td>
                   <td className="px-4 py-3 text-steel">{day.format(new Date(u.created_at))}</td>
                   <td className="px-4 py-3 text-right">{paid.length ? <Link className="link" href={`/admin?q=${encodeURIComponent(u.email)}`}>{paid.length}</Link> : 0}</td>

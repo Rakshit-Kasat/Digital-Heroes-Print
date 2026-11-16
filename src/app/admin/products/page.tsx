@@ -53,7 +53,7 @@ async function Products() {
                 <article key={p.id} className="panel p-5">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h3 className="text-lg font-bold">{p.name}</h3>
-                    <span className="text-xs text-steel">{cs.width.min}–{cs.width.max} × {cs.height.min}–{cs.height.max} mm · {p.dpi} dpi · {Number(p.bleed_mm)} mm bleed{p.supports_csv ? " · CSV" : ""}</span>
+                    <span className="text-xs text-steel">{cs.width.min} to {cs.width.max} by {cs.height.min} to {cs.height.max} mm, {p.dpi} dpi, {Number(p.bleed_mm)} mm bleed{p.supports_csv ? ", takes a CSV" : ""}</span>
                   </div>
                   <ActionForm action={updateProduct} submit="Save prices" className="mt-4">
                     <input type="hidden" name="productId" value={p.id} />

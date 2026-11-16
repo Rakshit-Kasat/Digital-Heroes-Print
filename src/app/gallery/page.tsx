@@ -33,7 +33,7 @@ export default async function GalleryPage() {
                     </div>
                     <figcaption className="mt-2 text-sm">
                       <span className="font-medium">{s.sample.title}</span>
-                      <span className="block text-steel">{s.sample.widthMm} × {s.sample.heightMm} mm · {s.product.name}</span>
+                      <span className="block text-steel">{s.sample.widthMm} × {s.sample.heightMm} mm, {s.product.name}</span>
                     </figcaption>
                   </figure>
                 </li>

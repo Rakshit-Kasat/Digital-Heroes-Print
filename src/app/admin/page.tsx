@@ -132,8 +132,8 @@ async function Board({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
 
       {rows.length ? (
         <div className="panel overflow-x-auto">
-          <table className="w-full min-w-[860px] text-sm">
-            <thead className="border-b border-hairline text-left text-steel">
+          <table className="w-full min-w-[860px] text-sm tabular-nums">
+            <thead className="border-b-[1.5px] border-ink bg-mist text-left text-steel">
               <tr>
                 <th className="px-4 py-2.5 font-medium">Job</th>
                 <th className="px-4 py-2.5 font-medium">Customer</th>
@@ -151,10 +151,10 @@ async function Board({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
                 const unlocked = latest?.status === "approved";
                 const files = item?.print_files.length ?? 0;
                 return (
-                  <tr key={o.id} className="hover:bg-paper">
+                  <tr key={o.id} className={(unlocked && !files) || latest?.status === "changes_requested" ? "bg-blade/15 hover:bg-blade/25" : "hover:bg-paper"}>
                     <td className="px-4 py-3">
                       <Link className="link font-semibold" href={`/admin/orders/${o.id}`}>{o.number}</Link>
-                      <span className="block text-xs text-steel">{day.format(new Date(o.created_at))}{o.paid_at ? "" : " · unpaid"}</span>
+                      <span className="block text-xs text-steel">{day.format(new Date(o.created_at))}{o.paid_at ? "" : ", unpaid"}</span>
                     </td>
                     <td className="px-4 py-3">
                       <span className="block max-w-48 truncate">{o.profiles.full_name || o.profiles.email}</span>
@@ -163,7 +163,7 @@ async function Board({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
                     <td className="px-4 py-3">
                       {item?.product_snapshot.name} × {item?.quantity.toLocaleString("en-GB")}
                       <span className="block text-xs text-steel">
-                        {item?.product_snapshot.division}{item?.csv_rows ? ` · CSV ${item.csv_rows} rows` : ""}{item?.upload_kind ? ` · ${item.upload_kind.toUpperCase()} upload` : ""}
+                        {item?.product_snapshot.division}{item?.csv_rows ? `, CSV of ${item.csv_rows} rows` : ""}{item?.upload_kind ? `, ${item.upload_kind.toUpperCase()} upload` : ""}
                       </span>
                     </td>
                     <td className="px-4 py-3"><StageChip stage={o.status} /></td>

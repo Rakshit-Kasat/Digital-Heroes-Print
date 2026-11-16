@@ -8,8 +8,8 @@ const TONE: Record<Stage, string> = {
   quote: "bg-mist text-steel",
   order: "bg-ink/8 text-ink",
   artwork: "bg-warning/12 text-warning",
-  proof: "bg-accent/10 text-accent-ink",
-  production: "bg-ink text-white",
+  proof: "bg-blade text-ink",
+  production: "bg-ink text-paper",
   completed: "bg-success/12 text-success",
 };
 
@@ -24,7 +24,7 @@ export function StageTrack({ stage }: { stage: Stage }) {
     <ol className="grid grid-cols-6 gap-1" aria-label={`Progress: ${STAGE_LABEL[stage]}`}>
       {STAGES.map((s, i) => (
         <li key={s} className="min-w-0" aria-current={i === at ? "step" : undefined}>
-          <span className={`block h-1.5 rounded-full ${i < at ? "bg-ink" : i === at ? "bg-accent" : "bg-hairline"}`} />
+          <span className={`block h-2 rounded-[1px] ${i < at ? "bg-mat" : i === at ? "bg-blade shadow-[inset_0_0_0_1px_var(--color-blade-deep)]" : "bg-hairline"}`} />
           <span className={`mt-1.5 block truncate text-[11px] sm:text-xs ${i === at ? "font-semibold text-ink" : "text-steel"}`}>{STAGE_LABEL[s]}</span>
         </li>
       ))}

@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AdminNav, NavLinks } from "./admin-nav";
 
-export const metadata: Metadata = { title: { template: "%s · Production", default: "Production" }, robots: { index: false } };
+export const metadata: Metadata = { title: { template: "%s | Production", default: "Production" }, robots: { index: false } };
 
 export default function AdminLayout({ children }: LayoutProps<"/admin">) {
   return (

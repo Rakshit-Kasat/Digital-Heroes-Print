@@ -28,7 +28,7 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 /** One plain, readable layout for every message. */
 function layout(heading: string, paragraphs: string[], cta?: { label: string; path: string }) {
   const body = paragraphs.map((p) => `<p style="margin:0 0 14px;line-height:1.5">${esc(p)}</p>`).join("");
-  const button = cta ? `<p style="margin:22px 0"><a href="${APP_URL}${cta.path}" style="background:#C4105F;color:#fff;padding:11px 18px;border-radius:6px;text-decoration:none;font-weight:600">${esc(cta.label)}</a></p>` : "";
+  const button = cta ? `<p style="margin:22px 0"><a href="${APP_URL}${cta.path}" style="background:#2d5a4b;color:#ffffff;padding:11px 18px;border-radius:6px;text-decoration:none;font-weight:600">${esc(cta.label)}</a></p>` : "";
   return `<div style="font-family:Arial,sans-serif;color:#1B1F24;max-width:560px;margin:0 auto;padding:24px">
     <p style="font-weight:700;font-size:15px;margin:0 0 20px">Digital Heroes Print</p>
     <h1 style="font-size:20px;margin:0 0 16px">${esc(heading)}</h1>${body}${button}

@@ -81,9 +81,9 @@ async function Dashboard() {
         {waiting.length ? (
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {waiting.map(({ order, proof }) => (
-              <li key={proof.id} className="panel flex items-center justify-between gap-4 border-accent/40 p-4">
+              <li key={proof.id} className="flex flex-wrap items-center justify-between gap-4 rounded-lg border-[1.5px] border-ink bg-sheet p-4">
                 <div>
-                  <p className="font-semibold">{order.number} · proof v{proof.version}</p>
+                  <p className="font-display text-lg font-bold">{order.number}, proof v{proof.version}</p>
                   <p className="text-sm text-steel">{order.order_items[0]?.product_snapshot.name} × {order.order_items[0]?.quantity.toLocaleString("en-GB")}</p>
                 </div>
                 <Link className="btn-primary py-2 text-sm" href={`/account/orders/${order.id}`}>Review proof v{proof.version}</Link>
@@ -121,7 +121,7 @@ async function Dashboard() {
                       </td>
                       <td className="px-4 py-3">{item?.product_snapshot.name}<span className="block text-xs text-steel">Qty {item?.quantity.toLocaleString("en-GB")}</span></td>
                       <td className="px-4 py-3"><StageChip stage={o.status} label={o.status === "proof" ? "Proof to review" : undefined} /></td>
-                      <td className="px-4 py-3 text-right font-semibold">{formatMoney(o.total_pence, o.currency)}</td>
+                      <td className="px-4 py-3 text-right font-semibold tabular-nums">{formatMoney(o.total_pence, o.currency)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2 whitespace-nowrap">
                           {invoice && <a className="btn-quiet py-1.5 text-sm" href={`/files/invoice/${o.id}`}>Invoice</a>}
@@ -153,7 +153,7 @@ async function Dashboard() {
               const material = product?.config_schema.materials.find((m) => m.id === cfg.materialId)?.name;
               return (
                 <li key={d.id} className="panel flex flex-col overflow-hidden">
-                  <Link href={`/design/${d.id}`} className="grid aspect-[4/3] place-items-center bg-mist p-3" aria-label={`Open ${d.name}`}>
+                  <Link href={`/design/${d.id}`} className="mat grid aspect-[4/3] place-items-center p-4 [--k:0.8px]" aria-label={`Open ${d.name}`}>
                     {docs[i] ? (
                       <div className="w-full max-w-[85%]"><LivePreview doc={docs[i]!} guides={false} label={d.name} imageUrls={urls} /></div>
                     ) : (
@@ -164,8 +164,8 @@ async function Dashboard() {
                     <p className="line-clamp-2 font-semibold">{d.name}</p>
                     <dl className="mt-1 text-xs text-steel">
                       <dt className="sr-only">Configuration</dt>
-                      <dd>{cfg.widthMm}×{cfg.heightMm} mm{material ? ` · ${material}` : ""}</dd>
-                      <dd>Qty {cfg.quantity.toLocaleString("en-GB")}{cfg.csvRows ? ` · ${cfg.csvRows} CSV rows` : ""}</dd>
+                      <dd>{cfg.widthMm}×{cfg.heightMm} mm{material ? `, ${material}` : ""}</dd>
+                      <dd>Qty {cfg.quantity.toLocaleString("en-GB")}{cfg.csvRows ? `, ${cfg.csvRows} CSV rows` : ""}</dd>
                     </dl>
                     <Link className="link mt-auto pt-2" href={`/design/${d.id}`}>{product ? "Edit and order" : "View"}</Link>
                   </div>

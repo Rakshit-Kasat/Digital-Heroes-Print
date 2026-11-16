@@ -62,7 +62,7 @@ async function Reports() {
                     <td className="py-1.5">
                       <div className="h-5 rounded-sm bg-accent" style={{ width: `${Math.max(2, (Number(m.revenue_pence) / maxMonth) * 100)}%` }} aria-hidden />
                     </td>
-                    <td className="w-40 py-1.5 pl-3 text-right"><span className="font-semibold">{formatMoney(Number(m.revenue_pence))}</span> <span className="text-xs text-steel">· {m.orders}</span></td>
+                    <td className="w-40 py-1.5 pl-3 text-right"><span className="font-semibold">{formatMoney(Number(m.revenue_pence))}</span> <span className="text-xs text-steel">{m.orders} {Number(m.orders) === 1 ? "order" : "orders"}</span></td>
                   </tr>
                 ))}
               </tbody>
