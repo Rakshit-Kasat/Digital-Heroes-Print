@@ -6,21 +6,44 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "node scripts/db.ts",
+    "db:seed": "node scripts/seed.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "rls:check": "node scripts/rls-check.ts"
   },
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
+    "@resvg/resvg-js": "^2.6.2",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.0",
+    "fabric": "^7.4.0",
+    "fflate": "^0.8.3",
     "next": "16.4.6",
+    "nodemailer": "^10.6.0",
+    "papaparse": "^5.7.1",
+    "pdf-lib": "^1.17.1",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "stripe": "^23.1.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
-    "@types/node": "^20",
+    "@types/node": "^24.19.2",
+    "@types/nodemailer": "^8.0.2",
+    "@types/papaparse": "^5.5.2",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^18.0.10",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "pg": "^8.23.1",
     "tailwindcss": "4.3.3",
-    "typescript": "^5"
-  }
+    "typescript": "^5",
+    "vitest": "^5.1.0"
+  },
+  "type": "module"
 }
