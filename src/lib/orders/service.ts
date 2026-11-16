@@ -69,6 +69,27 @@ export async function createOrderFromDesign(userId: string, designId: string, re
   return { order, item, product, price };
 }
 
+/**
+ * One-click reorder (PRD §09): copy the artwork exactly as it was ORDERED
+ * (the frozen snapshot, not the editable design) into a new saved design,
+ * then create a new order from it. The price is recalculated from today's
+ * catalogue, so a reorder never inherits an old price.
+ */
+export async function reorder(userId: string, orderId: string) {
+  const { data: src } = await db().from("orders").select("id, number, customer_id, order_items(*)").eq("id", orderId).single();
+  if (!src || src.customer_id !== userId) throw new Error("Order not found.");
+  const item = src.order_items[0];
+  if (!item) throw new Error("This order has no items to reorder.");
+  // Prefer the approved proof's document: that is what was actually printed.
+  const { data: approved } = await db().from("proofs").select("doc").eq("order_item_id", item.id).eq("status", "approved").order("version", { ascending: false }).limit(1).maybeSingle();
+  const { data: design, error } = await db().from("designs").insert({
+    owner_id: userId, product_id: item.product_id, name: `Reorder of ${src.number}`,
+    config: item.config, doc: approved?.doc ?? item.doc, upload_path: item.upload_path, upload_kind: item.upload_kind, is_saved: true,
+  }).select("id").single();
+  if (error) throw error;
+  return { designId: design.id as string, ...(await createOrderFromDesign(userId, design.id, src.id)) };
+}
+
 /* ------------------------------------------------------------------ */
 /* Status changes                                                       */
 /* ------------------------------------------------------------------ */

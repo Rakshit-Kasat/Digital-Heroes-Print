@@ -12,8 +12,7 @@ import { serverClient } from "@/lib/supabase/server";
 import { downloadFile } from "@/lib/storage";
 import type { DesignDoc } from "@/lib/design/types";
 import { createOrderFromDesign, type DesignConfig } from "@/lib/orders/service";
-import { stripe } from "@/lib/stripe";
-import { formatMoney } from "@/lib/pricing/calculate";
+import { startCheckout } from "@/lib/orders/checkout";
 
 export interface ActionResult { ok: boolean; error?: string; savedAt?: string; url?: string; doc?: DesignDoc | null }
 export type UploadKind = "pdf" | "svg" | "png" | "ai";
@@ -104,24 +103,8 @@ export async function checkout(designId: string, docInput: unknown, cfgInput: Pa
   const user = await requireUser(`/design/${designId}`);
   try {
     const { order, item, product, price } = await createOrderFromDesign(user.id, designId);
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-    const session = await stripe().checkout.sessions.create({
-      mode: "payment",
-      customer_email: user.email,
-      client_reference_id: order.id,
-      metadata: { order_id: order.id, order_number: order.number },
-      payment_intent_data: { metadata: { order_id: order.id, order_number: order.number } },
-      line_items: [
-        { quantity: 1, price_data: { currency: "gbp", unit_amount: price.subtotalPence, product_data: { name: `${product.name} × ${Number(item.quantity).toLocaleString("en-GB")}`, description: `Order ${order.number} · ${formatMoney(price.unitPence, "GBP", true)} each${price.setupPence ? ` + setup` : ""} · ex VAT` } } },
-        { quantity: 1, price_data: { currency: "gbp", unit_amount: price.vatPence, product_data: { name: `VAT at ${Math.round(price.vatRate * 100)}%` } } },
-      ],
-      success_url: `${appUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/design/${designId}?cancelled=1`,
-      expires_at: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
-      // Charge in GBP only, so the card statement matches the VAT invoice.
-      adaptive_pricing: { enabled: false },
-    });
-    return session.url ? { ok: true, url: session.url } : { ok: false, error: "Checkout could not start." };
+    const url = await startCheckout({ order, item, product, price, email: user.email, cancelPath: `/design/${designId}?cancelled=1` });
+    return { ok: true, url };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Checkout could not start." };
   }
