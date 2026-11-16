@@ -10,6 +10,7 @@ import { uploadDesign } from "@/lib/design/template";
 import { validateConfig } from "@/lib/pricing/calculate";
 import { serverClient } from "@/lib/supabase/server";
 import { downloadFile } from "@/lib/storage";
+import { isOwnedUpload } from "@/lib/storage-path";
 import type { DesignDoc } from "@/lib/design/types";
 import { createOrderFromDesign, type DesignConfig } from "@/lib/orders/service";
 import { startCheckout } from "@/lib/orders/checkout";
@@ -28,7 +29,7 @@ async function loadOwn(designId: string) {
   return { user, supabase, design, product };
 }
 
-const own = (path: string, uid: string, designId: string) => path.startsWith(`uploads/${uid}/${designId}/`) && !path.includes("..");
+const own = (path: string, uid: string, designId: string) => isOwnedUpload(path, uid, designId);
 
 export async function saveDesign(designId: string, docInput: unknown, cfgInput: Partial<DesignConfig>, name?: string): Promise<ActionResult> {
   try {

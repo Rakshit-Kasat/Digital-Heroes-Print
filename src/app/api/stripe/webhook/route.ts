@@ -27,10 +27,10 @@ export async function POST(req: Request) {
     const orderId = session.metadata?.order_id;
     if (orderId && session.payment_status === "paid") {
       try {
-        await markPaid(orderId, { sessionId: session.id, paymentIntent: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null });
+        await markPaid(orderId, { sessionId: session.id, paymentIntent: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null, amountTotal: session.amount_total, currency: session.currency });
       } catch (e) {
         // 500 makes Stripe retry later; markPaid's claim step keeps that safe.
-        console.error("markPaid failed", orderId, e);
+        console.error("markPaid failed", orderId, e instanceof Error ? e.message : String(e));
         return new Response("Processing failed", { status: 500 });
       }
     }

@@ -7,6 +7,7 @@
 import { z } from "zod";
 import { FONT_IDS } from "./fonts";
 import type { DesignDoc } from "./types";
+import { isOwnedUpload } from "@/lib/storage-path";
 
 const color = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 const mm = z.number().finite().min(-1000).max(2000);
@@ -30,7 +31,7 @@ export const DesignDocSchema = z.object({
 export function parseDoc(input: unknown, owner: string, size: { widthMm: number; heightMm: number; bleedMm: number; safeMm: number }): DesignDoc {
   const doc = DesignDocSchema.parse(input);
   for (const el of doc.elements) {
-    if (el.type === "image" && !el.src.startsWith(`uploads/${owner}/`)) throw new Error("Images must be uploaded through the designer.");
+    if (el.type === "image" && !isOwnedUpload(el.src, owner)) throw new Error("Images must be uploaded through the designer.");
   }
   return { ...doc, ...size } as DesignDoc;
 }

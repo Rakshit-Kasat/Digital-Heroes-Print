@@ -57,7 +57,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
   const customer = o.profiles as unknown as { full_name: string | null; email: string; company: string | null; phone: string | null };
   const item = (o.order_items as unknown as Array<{
     id: string; quantity: number; unit_price_pence: number; line_total_pence: number; discount_rate: number; csv_path: string | null; csv_rows: number | null; upload_kind: string | null; upload_path: string | null; doc: unknown;
-    config: { widthMm: number; heightMm: number }; product_snapshot: { name: string; division?: string; material?: string; bleed_mm?: number; dpi?: number };
+    config: { widthMm: number; heightMm: number }; product_snapshot: { name: string; division?: string; material?: string; bleed_mm?: number; dpi?: number; setupPence?: number };
     proofs: Proof[]; print_files: Array<{ id: string; kind: string; path: string; bytes: number | null; created_at: string }>;
   }>)[0];
   const proofs = [...(item?.proofs ?? [])].sort((a, b) => b.version - a.version);
@@ -217,7 +217,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
               {item?.csv_path && (<><dt className="text-steel">CSV</dt><dd>{item.csv_rows} rows <a className="link ml-2" href={`/files/csv/${item.id}`}>Download</a></dd></>)}
             </dl>
             <dl className="mt-4 grid grid-cols-[1fr_auto] gap-y-1 border-t border-hairline pt-3">
-              <dt className="text-steel">Unit (after {Math.round(Number(item?.discount_rate ?? 0) * 100)}% tier)</dt><dd className="text-right">{formatMoney(item ? item.line_total_pence / item.quantity : 0, "GBP", true)}</dd>
+              <dt className="text-steel">Unit (after {Math.round(Number(item?.discount_rate ?? 0) * 100)}% tier)</dt><dd className="text-right">{formatMoney(item ? (item.line_total_pence - (snap?.setupPence ?? 0)) / item.quantity : 0, "GBP", true)}</dd>
               <dt className="text-steel">Subtotal</dt><dd className="text-right">{formatMoney(o.subtotal_pence)}</dd>
               <dt className="text-steel">VAT</dt><dd className="text-right">{formatMoney(o.vat_pence)}</dd>
               <dt className="font-semibold">Total</dt><dd className="text-right font-semibold">{formatMoney(o.total_pence, o.currency)}</dd>

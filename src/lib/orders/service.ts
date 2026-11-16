@@ -17,6 +17,7 @@ import { canTransition, STAGE_LABEL, type ProofStatus, type Stage } from "@/lib/
 import { layoutForPrint, printFileName, renderPdf, renderPng, svgForPrint } from "@/lib/print/render";
 import { mergeCsv } from "@/lib/print/csvMerge.server";
 import { downloadFile, loadImages, uploadFile } from "@/lib/storage";
+import { isOwnedUpload } from "@/lib/storage-path";
 import { renderInvoicePdf } from "@/lib/invoice";
 import { parseCsv } from "@/lib/print/csv";
 import { applyRow } from "@/lib/design/template";
@@ -42,7 +43,15 @@ export async function createOrderFromDesign(userId: string, designId: string, re
   const errors = validateConfig(schema, cfg);
   if (errors.length) throw new Error(errors.join(" "));
   if (!design.doc && !design.upload_path) throw new Error("Add artwork before checking out.");
-  if (product.supports_csv && cfg.csvPath && (cfg.csvRows ?? 0) > cfg.quantity) throw new Error(`Your CSV has ${cfg.csvRows} rows; increase the quantity to at least that.`);
+  // The CSV row count decides how many files get printed, so count it here
+  // from the stored file instead of trusting the number the browser sent.
+  let csvRows: number | null = null;
+  if (cfg.csvPath) {
+    if (!product.supports_csv) throw new Error("This product does not take a names-and-numbers list.");
+    if (!isOwnedUpload(cfg.csvPath, userId)) throw new Error("CSV file not found.");
+    csvRows = parseCsv(new TextDecoder().decode(await downloadFile(cfg.csvPath))).rows.length;
+    if (csvRows > cfg.quantity) throw new Error(`Your CSV has ${csvRows} rows; increase the quantity to at least that.`);
+  }
 
   // Authoritative price: recomputed here from the database, never taken from the browser.
   const price = calculatePrice(schema, product.pricing as PricingRules, cfg, VAT_RATE);
@@ -61,7 +70,7 @@ export async function createOrderFromDesign(userId: string, designId: string, re
       setupPence: price.setupPence, itemsPence: price.itemsPence,
     },
     config: cfg, quantity: cfg.quantity, unit_price_pence: Math.round(price.unitPence), discount_rate: price.discountRate,
-    line_total_pence: price.subtotalPence, csv_path: cfg.csvPath ?? null, csv_rows: cfg.csvRows ?? null,
+    line_total_pence: price.subtotalPence, csv_path: cfg.csvPath ?? null, csv_rows: csvRows,
     doc: design.doc, upload_path: design.upload_path, upload_kind: design.upload_kind,
   }).select("*").single();
   if (itemErr) throw itemErr;
@@ -76,7 +85,8 @@ export async function createOrderFromDesign(userId: string, designId: string, re
  * catalogue, so a reorder never inherits an old price.
  */
 export async function reorder(userId: string, orderId: string) {
-  const { data: src } = await db().from("orders").select("id, number, customer_id, order_items(*)").eq("id", orderId).single();
+  // Only paid orders can be reordered (an abandoned checkout was never made).
+  const { data: src } = await db().from("orders").select("id, number, customer_id, order_items(*)").eq("id", orderId).not("paid_at", "is", null).single();
   if (!src || src.customer_id !== userId) throw new Error("Order not found.");
   const item = src.order_items[0];
   if (!item) throw new Error("This order has no items to reorder.");
@@ -121,18 +131,28 @@ export async function setStatus(orderId: string, to: Stage, actorId: string | nu
  * Idempotent: called by the Stripe webhook AND the success page; whichever
  * arrives first does the work, the other is a no-op (conditional update).
  */
-export async function markPaid(orderId: string, stripe: { sessionId: string; paymentIntent: string | null }) {
+export async function markPaid(orderId: string, stripe: { sessionId: string; paymentIntent: string | null; amountTotal: number | null; currency: string | null }) {
+  // The claim only matches if Stripe charged exactly what this order costs.
   const { data: claimed } = await db().from("orders")
     .update({ paid_at: new Date().toISOString(), stripe_session_id: stripe.sessionId, stripe_payment_intent: stripe.paymentIntent })
-    .eq("id", orderId).is("paid_at", null).select("id").maybeSingle();
+    .eq("id", orderId).is("paid_at", null).eq("status", "quote")
+    .eq("total_pence", stripe.amountTotal ?? -1).eq("currency", (stripe.currency ?? "").toUpperCase())
+    .select("id").maybeSingle();
   if (claimed) {
     await fulfil(orderId, true);
     return true;
   }
-  // Already paid. If an earlier attempt crashed half-way (and is not still
-  // running: paid over 2 minutes ago), finish what it left, without re-sending emails.
-  const { data: paid } = await db().from("orders").select("paid_at").eq("id", orderId).maybeSingle();
-  if (paid?.paid_at && Date.now() - new Date(paid.paid_at).getTime() > 120_000) await fulfil(orderId, false);
+  const { data: paid } = await db().from("orders").select("paid_at, total_pence, invoices(id)").eq("id", orderId).maybeSingle();
+  if (!paid?.paid_at) {
+    console.error("Payment did not match the order; not marked paid", orderId, stripe.sessionId, stripe.amountTotal, paid?.total_pence);
+    return false;
+  }
+  // Already paid. Over 2 minutes ago: an earlier attempt may have crashed
+  // half-way, so finish what it left (fulfil is idempotent, emails are not re-sent).
+  if (Date.now() - new Date(paid.paid_at).getTime() > 120_000) await fulfil(orderId, false);
+  // Recent and not finished yet: throw, so the webhook answers 500 and Stripe
+  // retries in a few minutes. Otherwise a crash in the first attempt would be final.
+  else if (!paid.invoices?.length) throw new Error("Payment is still being processed; retry later.");
   return false;
 }
 
@@ -210,13 +230,17 @@ async function issueInvoice(order: { id: string; number: string; subtotal_pence:
 /* ------------------------------------------------------------------ */
 
 async function orderForItem(itemId: string) {
-  const { data } = await db().from("order_items").select("id, order_id, product_snapshot, orders(id, number, status, customer_id, profiles(email, full_name))").eq("id", itemId).single();
+  const { data } = await db().from("order_items").select("id, order_id, product_snapshot, orders(id, number, status, paid_at, customer_id, profiles(email, full_name))").eq("id", itemId).single();
   if (!data) throw new Error("Order item not found.");
-  return data as unknown as { id: string; order_id: string; product_snapshot: { slug: string; name: string; dpi: number }; orders: { id: string; number: string; status: Stage; customer_id: string; profiles: { email: string; full_name: string } } };
+  return data as unknown as { id: string; order_id: string; product_snapshot: { slug: string; name: string; dpi: number }; orders: { id: string; number: string; status: Stage; paid_at: string | null; customer_id: string; profiles: { email: string; full_name: string } } };
 }
 
 async function storeProof(itemId: string, files: { png: Uint8Array; svg?: string }, doc: DesignDoc | null, actorId: string | null, note: string | null) {
   const info = await orderForItem(itemId);
+  // Proofs belong to paid jobs that are not yet in production.
+  if (!info.orders.paid_at || !["order", "artwork", "proof"].includes(info.orders.status)) {
+    throw new Error("Proofs can only be sent for paid jobs before production starts.");
+  }
   const prev = await latestProof(itemId);
   const version = (prev?.version ?? 0) + 1;
   const base = `proofs/${info.orders.number}/v${version}`;
@@ -227,6 +251,8 @@ async function storeProof(itemId: string, files: { png: Uint8Array; svg?: string
   const { data: proof, error } = await db().from("proofs").insert({ order_item_id: itemId, version, png_path: pngPath, svg_path: svgPath, doc, note, created_by: actorId }).select("*").single();
   if (error) throw error;
   await db().from("proof_events").insert({ proof_id: proof.id, actor_id: actorId, action: "created", note });
+  // Print files made from an older approved version must not look "ready" any more.
+  await db().from("print_files").delete().eq("order_item_id", itemId);
   if (info.orders.status === "order") await setStatus(info.order_id, "artwork", actorId);
   const fresh = await db().from("orders").select("status").eq("id", info.order_id).single();
   if (fresh.data?.status === "artwork") await setStatus(info.order_id, "proof", actorId, `Proof v${version} sent`);
@@ -274,6 +300,8 @@ export async function approveProof(customerId: string, proofId: string) {
 
 export async function requestChanges(customerId: string, proofId: string, note: string) {
   const p = await proofForCustomer(customerId, proofId);
+  // Check the stage first, so a refused move never leaves the proof half-answered.
+  if (p.order_items.orders.status !== "proof") throw new Error("This job has moved on; contact the studio about changes.");
   const { data } = await db().from("proofs").update({ status: "changes_requested" }).eq("id", proofId).eq("status", "pending").select("id");
   if (!data?.length) throw new Error("This proof has already been answered.");
   await db().from("proof_events").insert({ proof_id: proofId, actor_id: customerId, action: "changes_requested", note });

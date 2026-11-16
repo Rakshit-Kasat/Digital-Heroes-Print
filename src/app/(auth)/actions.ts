@@ -47,8 +47,8 @@ export async function signUp(_prev: AuthState, form: FormData): Promise<AuthStat
     user_metadata: { full_name: parsed.data.fullName },
   });
   if (error) {
-    const taken = /already|registered|exists/i.test(error.message);
-    return { error: taken ? "An account with this email already exists. Sign in instead." : "We could not create the account. Please try again.", values };
+    // One message for both cases, so the form does not reveal who has an account.
+    return { error: "We could not create an account with this email. If you already have one, sign in instead.", values };
   }
   // The DB trigger made the profile; fill in the details (role stays "customer").
   await adminClient().from("profiles").update({ full_name: parsed.data.fullName, company: parsed.data.company || null }).eq("id", data.user.id);

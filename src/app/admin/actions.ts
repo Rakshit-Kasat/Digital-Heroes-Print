@@ -11,6 +11,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { adminClient, serverClient } from "@/lib/supabase/server";
 import { downloadFile } from "@/lib/storage";
+import { isOwnedUpload } from "@/lib/storage-path";
 import { CATALOG_TAG } from "@/lib/catalog/queries";
 import { STAGES, type Stage } from "@/lib/orders/pipeline";
 import { createProofFromDoc, createProofFromUpload, generatePrintFiles, notifyStatus, setStatus } from "@/lib/orders/service";
@@ -70,7 +71,7 @@ export async function uploadProof(_prev: AdminState, form: FormData): Promise<Ad
   const orderId = uuid.safeParse(form.get("orderId"));
   const path = String(form.get("path") ?? "");
   if (!orderId.success) return { error: "Unknown order." };
-  if (!path.startsWith(`uploads/${admin.id}/${orderId.data}/`) || path.includes("..")) return { error: "Upload the proof again." };
+  if (!isOwnedUpload(path, admin.id, orderId.data)) return { error: "Upload the proof again." };
   try {
     const bytes = await downloadFile(path);
     const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;

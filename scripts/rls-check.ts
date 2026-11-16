@@ -65,6 +65,26 @@ try {
   check("anonymous visitors can browse the catalogue", (anonProducts.data?.length ?? 0) > 0);
   const anonOrders = await publicClient().from("orders").select("id");
   check("anonymous visitors see no orders", (anonOrders.data?.length ?? 0) === 0);
+
+  // Migration 0005: a customer writing their own design row directly (public key)
+  // cannot point it at files outside their own upload folder.
+  const { data: design } = await cust.c.from("designs")
+    .insert({ owner_id: cust.id, product_id: product!.id, config: {}, upload_path: `uploads/${cust.id}/rls-check/file.png` })
+    .select("id").single();
+  check("customer can save a design with their own upload", !!design);
+  if (design) {
+    const tries = ["print-files/orders/DH-000001/x.pdf", `uploads/${cust.id}/../../print-files/x.pdf`, `uploads/${cust.id}/%2e%2e/x.png`, `uploads/${second.id}/a/b.png`];
+    for (const path of tries) {
+      const res = await cust.c.from("designs").update({ upload_path: path }).eq("id", design.id).select("id");
+      check(`design cannot point at ${path.replace(cust.id, "<me>").replace(second.id, "<other>")}`, !!res.error);
+    }
+    const img = await cust.c.from("designs").update({ doc: { elements: [{ type: "image", src: "invoices/DH-000001/INV.pdf" }] } }).eq("id", design.id).select("id");
+    check("design image cannot point at another bucket", !!img.error);
+    await service.from("designs").delete().eq("id", design.id);
+  }
+  const mail = await cust.c.from("profiles").update({ email: "someone-else@example.com" }).eq("id", cust.id).select("email");
+  const { data: prof } = await service.from("profiles").select("email").eq("id", cust.id).single();
+  check("customer cannot change the email orders are sent to", !!mail.error && prof?.email === custU.email);
 } finally {
   await service.from("orders").delete().eq("id", order.id);
 }

@@ -8,8 +8,11 @@ import "server-only";
 import { adminClient } from "@/lib/supabase/server";
 import type { DesignDoc } from "@/lib/design/types";
 import type { ImageMap } from "@/lib/print/render";
+import { isSafePath } from "@/lib/storage-path";
 
 export function splitPath(path: string): { bucket: string; key: string } {
+  // Every storage call goes through here, so an unsafe path never reaches the API.
+  if (!isSafePath(path)) throw new Error("Invalid file path.");
   const i = path.indexOf("/");
   return { bucket: path.slice(0, i), key: path.slice(i + 1) };
 }

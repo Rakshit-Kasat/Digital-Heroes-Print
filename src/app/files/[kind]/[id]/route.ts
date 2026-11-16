@@ -51,7 +51,8 @@ export async function GET(req: Request, ctx: RouteContext<"/files/[kind]/[id]">)
   }
   if (!path) return notFound();
 
-  const url = await signedUrl(path, 60, inline ? undefined : name);
+  // SVG and CSV are always downloaded, never opened in the browser (an SVG can carry script).
+  const url = await signedUrl(path, 60, inline && !/\.(svg|csv)$/i.test(path) ? undefined : name);
   if (!url) return notFound();
   return NextResponse.redirect(url, { headers: { "Cache-Control": "private, no-store" } });
 }

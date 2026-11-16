@@ -39,10 +39,10 @@ async function Confirm({ searchParams }: PageProps<"/checkout/success">) {
   if (session.payment_status !== "paid") return <Problem text="The payment has not completed yet. If you were charged, your order will update within a few minutes." />;
 
   try {
-    await markPaid(order.id, { sessionId: session.id, paymentIntent: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null });
+    await markPaid(order.id, { sessionId: session.id, paymentIntent: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id ?? null, amountTotal: session.amount_total, currency: session.currency });
   } catch (e) {
     // The payment is real; follow-up work (invoice, proof) is retried by the webhook.
-    console.error("markPaid from success page failed", order.id, e);
+    console.error("markPaid from success page failed", order.id, e instanceof Error ? e.message : String(e));
   }
 
   return (
