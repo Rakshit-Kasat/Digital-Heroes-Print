@@ -138,7 +138,9 @@ export function Configurator({ product, templates, divisionSlug }: { product: Pr
         </div>
 
         {state.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
-        <div className="flex flex-col gap-2 sm:flex-row">
+        {/* On a phone the actions stay pinned to the bottom with the total, so the price never scrolls away from the button. */}
+        <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-2 border-t border-hairline bg-paper px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 sm:static sm:mx-0 sm:flex-row sm:border-0 sm:bg-transparent sm:p-0">
+          {price && <p className="flex items-baseline justify-between text-sm text-steel sm:hidden"><span>Total with VAT</span><span className="font-display text-xl font-extrabold text-ink">{formatMoney(price.totalPence)}</span></p>}
           <button className="btn-primary flex-1" name="mode" value="design" disabled={!price || pending || !template} aria-describedby={errors.length ? "config-errors" : undefined}>Design it online</button>
           <button className="btn-secondary flex-1" name="mode" value="upload" disabled={!price || pending} aria-describedby={errors.length ? "config-errors" : undefined}>Upload print-ready file</button>
         </div>

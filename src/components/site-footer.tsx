@@ -13,9 +13,9 @@ export function SiteFooter() {
           {CONTACT && <p className="mt-3">Questions about an order? Email <a className="link" href={`mailto:${CONTACT}`}>{CONTACT}</a>. We reply within one working day.</p>}
         </div>
         <div className="flex flex-col">
-          <Link className="py-1.5 hover:text-ink" href="/products">All products</Link>
-          <Link className="py-1.5 hover:text-ink" href="/gallery">Gallery</Link>
-          <Link className="py-1.5 hover:text-ink" href="/account">Your account</Link>
+          <Link className="inline-flex min-h-11 items-center hover:text-ink" href="/products">All products</Link>
+          <Link className="inline-flex min-h-11 items-center hover:text-ink" href="/gallery">Gallery</Link>
+          <Link className="inline-flex min-h-11 items-center hover:text-ink" href="/account">Your account</Link>
         </div>
         <p>Test environment: payments run in Stripe test mode. Use card 4242 4242 4242 4242, any future date and any CVC.</p>
       </div>

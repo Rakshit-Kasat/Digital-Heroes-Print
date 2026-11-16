@@ -100,14 +100,14 @@ async function Board({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
         </nav>
       )}
 
-      <form className="panel grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto]" action="/admin" role="search">
+      <form className="panel grid grid-cols-2 gap-3 p-4 lg:grid-cols-[2fr_1fr_1fr_1fr_auto]" action="/admin" role="search">
         {status && <input type="hidden" name="status" value={status} />}
         {archived && <input type="hidden" name="view" value="archive" />}
-        <div>
+        <div className="col-span-2 lg:col-span-1">
           <label className="label" htmlFor="q">Search</label>
           <input className="field" id="q" name="q" defaultValue={q} placeholder="Order number, customer, email or company" />
         </div>
-        <div>
+        <div className="col-span-2 lg:col-span-1">
           <label className="label" htmlFor="division">Product type</label>
           <select className="field" id="division" name="division" defaultValue={division}>
             <option value="">All ranges</option>
@@ -122,7 +122,7 @@ async function Board({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
           <label className="label" htmlFor="to">To</label>
           <input className="field" id="to" name="to" type="date" defaultValue={to} />
         </div>
-        <div className="flex items-end gap-2">
+        <div className="col-span-2 flex items-end gap-2 lg:col-span-1">
           <button className="btn-primary py-2">Filter</button>
           {(q || division || from || to) && <Link className="btn-quiet py-2" href={link({ q: "", division: "", from: "", to: "" })}>Clear</Link>}
         </div>
@@ -131,7 +131,37 @@ async function Board({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
       {error && <p role="alert" className="text-sm text-danger">Could not load jobs: {error.message}</p>}
 
       {rows.length ? (
-        <div className="panel relative overflow-x-auto">
+        <>
+        {/* Phone: one card per job, with what it needs written out; the full table from md up. */}
+        <ul className="space-y-2 md:hidden">
+          {rows.map((o) => {
+            const item = o.order_items[0];
+            const latest = [...(item?.proofs ?? [])].sort((a, b) => b.version - a.version)[0];
+            const files = item?.print_files.length ?? 0;
+            const needs = !o.paid_at ? "Waiting for payment"
+              : latest?.status === "changes_requested" ? `Send proof v${latest.version + 1}`
+              : latest?.status === "approved" && !files ? "Generate print files"
+              : !latest && o.status !== "completed" ? "Send the first proof"
+              : latest?.status === "pending" ? `Customer reviewing v${latest.version}`
+              : files && o.status !== "production" && o.status !== "completed" ? "Move to production"
+              : null;
+            const act = needs && !needs.startsWith("Customer") && !needs.startsWith("Waiting");
+            return (
+              <li key={o.id}>
+                <Link href={`/admin/orders/${o.id}`} className={`block rounded-lg border px-4 py-3 text-sm tabular-nums ${act ? "border-ink bg-blade/15" : "border-hairline bg-sheet"}`}>
+                  <span className="flex items-center justify-between gap-3">
+                    <span className="font-display text-base font-bold">{o.number}</span>
+                    <StageChip stage={o.status} />
+                  </span>
+                  <span className="mt-1 block">{item?.product_snapshot.name} × {item?.quantity.toLocaleString("en-GB")}, {formatMoney(o.total_pence, o.currency)}</span>
+                  <span className="block truncate text-steel">{o.profiles.full_name || o.profiles.email}, {day.format(new Date(o.created_at))}</span>
+                  {needs && <span className={`mt-1 block font-semibold ${act ? "text-ink" : "text-steel"}`}>{needs}</span>}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="panel relative hidden overflow-x-auto md:block">
           <table className="w-full min-w-[860px] text-sm tabular-nums">
             <thead className="border-b-[1.5px] border-ink bg-mist text-left text-steel">
               <tr>
@@ -167,7 +197,7 @@ async function Board({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
                       </span>
                     </td>
                     <td className="px-4 py-3"><StageChip stage={o.status} /></td>
-                    <td className="px-4 py-3 text-xs">{latest ? `v${latest.version} ${latest.status.replace("_", " ")}` : <span className="text-steel">none</span>}</td>
+                    <td className="px-4 py-3">{latest ? `v${latest.version} ${latest.status.replace("_", " ")}` : <span className="text-steel">none</span>}</td>
                     <td className="px-4 py-3">
                       {files ? <span className="chip bg-success/12 text-success">{files} ready</span>
                         : unlocked ? <span className="chip bg-warning/12 text-warning">Unlocked</span>
@@ -181,6 +211,7 @@ async function Board({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
           </table>
           {rows.length === 100 && <p className="border-t border-hairline px-4 py-2 text-xs text-steel">Showing the newest 100. Narrow the search to see older jobs.</p>}
         </div>
+        </>
       ) : (
         <div className="panel p-6 text-sm">
           <p className="font-medium">No jobs match.</p>

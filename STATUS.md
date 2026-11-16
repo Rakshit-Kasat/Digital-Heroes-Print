@@ -59,3 +59,5 @@ Phase 1 (schema + RLS + seed) once `.env.local` is filled. Start a fresh session
 > Read STATUS.md, docs/PLAN.md and AGENTS.md in D:\Digital Heroes. `.env.local` is filled. Start Phase 1 (schema + RLS + seed), then continue phase by phase, teaching me as you go. Ask before using sub-agents.
 
 Keys go straight into `.env.local` (never pasted in chat, never committed).
+
+Redesign tool decisions (2026-11-17): Hallmark used (lint + kept-wiring check). shadcn/Radix primitives NOT added: every control is a native element on our own tokens, so a primitive library would add a dependency (and a safe-check) with nothing to fix. React Bits NOT used: the cutting-mat direction is low-motion on purpose; the one motion is the mat pieces lifting on hover. Superdesign skipped (approved). Playwright suite committed (e2e/). Reviewers running: critic (Opus) + ux-auditor (Sonnet).

@@ -61,8 +61,8 @@ export function ProofDecision({ proofId, version }: { proofId: string; version: 
       <div role="tablist" aria-label="Your decision" className="inline-flex rounded-md border border-hairline bg-mist p-0.5 text-sm">
         {(["approve", "changes"] as const).map((m) => (
           <button key={m} role="tab" type="button" aria-selected={mode === m} onClick={() => setMode(m)}
-            className={`rounded px-3 py-1.5 font-medium ${mode === m ? "bg-sheet text-ink shadow-sm" : "text-steel hover:text-ink"}`}>
-            {m === "approve" ? `Approve v${version}` : "Request changes"}
+            className={`min-h-10 rounded px-3 py-1.5 font-medium ${mode === m ? "bg-sheet text-ink shadow-sm" : "text-steel hover:text-ink"}`}>
+            {m === "approve" ? "It looks right" : "I want changes"}
           </button>
         ))}
       </div>
