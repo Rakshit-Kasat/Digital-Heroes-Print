@@ -42,6 +42,8 @@ export interface TextElement extends Base {
 export interface ImageElement extends Base {
   type: "image";
   src: string;    // storage path ("uploads/…") or data: URL
+  pxW?: number;   // source pixel size, for the low-resolution preflight warning
+  pxH?: number;
 }
 
 export interface ShapeElement extends Base {
