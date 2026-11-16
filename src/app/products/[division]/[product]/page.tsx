@@ -17,13 +17,28 @@ export async function generateMetadata({ params }: PageProps<"/products/[divisio
   return found ? { title: found.product.name, description: found.product.summary } : {};
 }
 
-export default async function ProductPage({ params }: PageProps<"/products/[division]/[product]">) {
+/**
+ * The shell (page frame) is shared by every product URL; the URL-specific
+ * part reads params inside <Suspense> so client navigation is instant. The
+ * catalogue is cached, so on the server this resolves immediately.
+ */
+export default function ProductPage({ params }: PageProps<"/products/[division]/[product]">) {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <Suspense fallback={<div className="space-y-4"><div className="h-5 w-48 rounded bg-mist" /><div className="h-10 w-72 rounded bg-mist" /><div className="h-[560px] animate-pulse rounded-lg bg-mist" /></div>}>
+        <ProductBody params={params} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function ProductBody({ params }: Pick<PageProps<"/products/[division]/[product]">, "params">) {
   const { division, product } = await params;
   const found = await findProduct(division, product);
   if (!found) notFound();
   const p = found.product;
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <>
       <nav aria-label="Breadcrumb" className="text-sm text-steel">
         <Link className="hover:text-ink" href="/products">Products</Link> / <Link className="hover:text-ink" href={`/products/${found.division.slug}`}>{found.division.name}</Link>
       </nav>
@@ -34,6 +49,6 @@ export default async function ProductPage({ params }: PageProps<"/products/[divi
           <Configurator product={p} templates={found.templates} divisionSlug={found.division.slug} />
         </Suspense>
       </div>
-    </div>
+    </>
   );
 }

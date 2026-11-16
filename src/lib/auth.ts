@@ -6,6 +6,7 @@
 import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { serverClient } from "@/lib/supabase/server";
 
 export interface SessionUser {
@@ -18,6 +19,9 @@ export interface SessionUser {
 
 /** Cached per request: many components can call it for one auth round-trip. */
 export const getUser = cache(async (): Promise<SessionUser | null> => {
+  // Who is asking is per-request by definition: tell Next before Supabase
+  // reads the clock to check token expiry (Cache Components rule).
+  await connection();
   const supabase = await serverClient();
   // getUser() validates the JWT with Supabase Auth (getSession() would trust the cookie blindly).
   const { data } = await supabase.auth.getUser();

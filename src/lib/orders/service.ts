@@ -18,6 +18,8 @@ import { layoutForPrint, printFileName, renderPdf, renderPng, svgForPrint } from
 import { mergeCsv } from "@/lib/print/csvMerge.server";
 import { downloadFile, loadImages, uploadFile } from "@/lib/storage";
 import { renderInvoicePdf } from "@/lib/invoice";
+import { parseCsv } from "@/lib/print/csv";
+import { applyRow } from "@/lib/design/template";
 import { sendEmail, STUDIO_EMAIL } from "@/lib/email";
 import type { ConfigSchema, PricingRules } from "@/lib/catalog/types";
 import type { DesignDoc, ProductConfig } from "@/lib/design/types";
@@ -102,26 +104,69 @@ export async function markPaid(orderId: string, stripe: { sessionId: string; pay
   const { data: claimed } = await db().from("orders")
     .update({ paid_at: new Date().toISOString(), stripe_session_id: stripe.sessionId, stripe_payment_intent: stripe.paymentIntent })
     .eq("id", orderId).is("paid_at", null).select("id").maybeSingle();
-  if (!claimed) return false; // already processed
+  if (claimed) {
+    await fulfil(orderId, true);
+    return true;
+  }
+  // Already paid. If an earlier attempt crashed half-way (and is not still
+  // running: paid over 2 minutes ago), finish what it left, without re-sending emails.
+  const { data: paid } = await db().from("orders").select("paid_at").eq("id", orderId).maybeSingle();
+  if (paid?.paid_at && Date.now() - new Date(paid.paid_at).getTime() > 120_000) await fulfil(orderId, false);
+  return false;
+}
 
-  await setStatus(orderId, "order", null, "Payment received (Stripe)");
-  const { data: order } = await db().from("orders").select("*, profiles(full_name, company, email), order_items(*)").eq("id", orderId).single();
+/**
+ * System-driven step (payment, artwork received): move only if the order is
+ * still at `from`. If another request already moved it, this is a no-op, so
+ * the webhook and the success page can both run without tripping over each other.
+ */
+async function advanceIf(orderId: string, from: Stage, to: Stage, note: string) {
+  const { data } = await db().from("orders").update({ status: to }).eq("id", orderId).eq("status", from).select("id");
+  if (data?.length) await db().from("order_events").insert({ order_id: orderId, from_status: from, to_status: to, actor_id: null, note });
+}
+
+/** Each step checks whether it is already done, so fulfil() can safely be re-run. */
+async function fulfil(orderId: string, firstTime: boolean) {
+  const load = async () => (await db().from("orders").select("*, profiles(full_name, company, email), invoices(id), order_items(*, proofs(id))").eq("id", orderId).single()).data;
+  const order = await load();
+  if (!order) throw new Error("Order not found.");
   const item = order.order_items[0];
 
-  await issueInvoice(order);
-  await sendEmail({
-    to: order.profiles.email, template: "order_confirmation", orderId,
-    subject: `Order ${order.number} confirmed`,
-    heading: `Thanks — order ${order.number} is confirmed`,
-    paragraphs: [`We have received your payment for ${item.quantity} × ${item.product_snapshot.name}.`, item.doc ? "Your first proof is ready to review now. Nothing is printed until you approve it." : "Our prepress team will check your file and send a proof shortly. Nothing is printed until you approve it."],
-    cta: { label: "View your order", path: `/account/orders/${orderId}` },
-  });
-  if (item.doc) {
-    await setStatus(orderId, "artwork", null, "Artwork received from the online designer");
-    await createProofFromDoc(item.id, item.doc as DesignDoc, null, "Automatic proof from your design.");
+  await advanceIf(orderId, "quote", "order", "Payment received (Stripe)");
+  // invoices.order_id is unique, so PostgREST may embed it as an object rather than an array.
+  const hasInvoice = Array.isArray(order.invoices) ? order.invoices.length > 0 : !!order.invoices;
+  if (!hasInvoice) await issueInvoice(order);
+
+  if (firstTime) {
+    await sendEmail({
+      to: order.profiles.email, template: "order_confirmation", orderId,
+      subject: `Order ${order.number} confirmed`,
+      heading: `Thanks, order ${order.number} is confirmed`,
+      paragraphs: [`We have received your payment for ${item.quantity} × ${item.product_snapshot.name}.`, item.doc ? "Your first proof is ready to review now. Nothing is printed until you approve it." : "Our prepress team will check your file and send a proof shortly. Nothing is printed until you approve it."],
+      cta: { label: "View your order", path: `/account/orders/${orderId}` },
+    });
   }
-  if (STUDIO_EMAIL) await sendEmail({ to: STUDIO_EMAIL, template: "staff_new_order", orderId, subject: `New order ${order.number}`, heading: `New paid order ${order.number}`, paragraphs: [`${item.quantity} × ${item.product_snapshot.name} for ${order.profiles.full_name || order.profiles.email}.`], cta: { label: "Open in the job board", path: `/admin/orders/${orderId}` } });
-  return true;
+
+  if (item.doc && !item.proofs?.length) {
+    await advanceIf(orderId, "order", "artwork", "Artwork received from the online designer");
+    let proofDoc = item.doc as DesignDoc;
+    let note = "Automatic proof from your design.";
+    // Variable data: proof the first real CSV row rather than the template's sample text.
+    if (item.csv_path) {
+      const { rows } = parseCsv(new TextDecoder().decode(await downloadFile(item.csv_path)));
+      if (rows[0]) {
+        proofDoc = applyRow(proofDoc, rows[0]);
+        note = `Proof shows row 1 of ${rows.length} from your CSV. Every row was checked for fit when you uploaded it; all ${rows.length} print files are made from this approved layout.`;
+      }
+    }
+    try {
+      await createProofFromDoc(item.id, proofDoc, null, note);
+    } catch (e) {
+      // unique(order_item_id, version): a concurrent run already created v1.
+      if ((e as { code?: string })?.code !== "23505") throw e;
+    }
+  }
+  if (firstTime && STUDIO_EMAIL) await sendEmail({ to: STUDIO_EMAIL, template: "staff_new_order", orderId, subject: `New order ${order.number}`, heading: `New paid order ${order.number}`, paragraphs: [`${item.quantity} × ${item.product_snapshot.name} for ${order.profiles.full_name || order.profiles.email}.`], cta: { label: "Open in the job board", path: `/admin/orders/${orderId}` } });
 }
 
 async function issueInvoice(order: { id: string; number: string; subtotal_pence: number; vat_pence: number; total_pence: number; vat_rate: number; currency: string; profiles: { full_name: string; company: string | null; email: string }; order_items: Array<{ quantity: number; config: DesignConfig; product_snapshot: Record<string, unknown> }> }) {

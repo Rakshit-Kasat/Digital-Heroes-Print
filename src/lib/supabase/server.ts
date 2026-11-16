@@ -34,7 +34,13 @@ export async function serverClient() {
 
 let admin: SupabaseClient | null = null;
 export function adminClient(): SupabaseClient {
-  admin ??= createClient(URL_, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false, autoRefreshToken: false } });
+  admin ??= createClient(URL_, process.env.SUPABASE_SECRET_KEY!, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    // React memoizes identical GET fetches during a server render. This client
+    // writes and then re-reads (e.g. status checks), so every request must hit
+    // the database: a signal opts a fetch out of memoization.
+    global: { fetch: (input, init) => fetch(input, { ...init, cache: "no-store", signal: init?.signal ?? new AbortController().signal }) },
+  });
   return admin;
 }
 

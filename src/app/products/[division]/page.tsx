@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { findDivision, getCatalog } from "@/lib/catalog/queries";
 import { resolvedSamples } from "@/lib/catalog/sample-docs";
 import { PrintArt } from "@/components/print-sheet";
@@ -16,12 +17,23 @@ export async function generateMetadata({ params }: PageProps<"/products/[divisio
   return found ? { title: found.division.name, description: found.division.tagline } : {};
 }
 
-export default async function DivisionPage({ params }: PageProps<"/products/[division]">) {
+/** Frame shared by every division URL; the params read streams inside Suspense. */
+export default function DivisionPage({ params }: PageProps<"/products/[division]">) {
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      <Suspense fallback={<div className="space-y-4"><div className="h-10 w-72 rounded bg-mist" /><div className="grid gap-6 md:grid-cols-2"><div className="h-96 rounded-lg bg-mist" /><div className="h-96 rounded-lg bg-mist" /></div></div>}>
+        <DivisionBody params={params} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function DivisionBody({ params }: Pick<PageProps<"/products/[division]">, "params">) {
   const found = await findDivision((await params).division);
   if (!found) notFound();
   const samples = resolvedSamples(found.products, found.templates);
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+    <>
       <nav aria-label="Breadcrumb" className="text-sm text-steel"><Link className="hover:text-ink" href="/products">Products</Link></nav>
       <h1 className="mt-3 text-4xl font-extrabold">{found.division.name}</h1>
       <p className="mt-2 max-w-2xl text-steel">{found.division.tagline}</p>
@@ -49,6 +61,6 @@ export default async function DivisionPage({ params }: PageProps<"/products/[div
           );
         })}
       </ul>
-    </div>
+    </>
   );
 }
