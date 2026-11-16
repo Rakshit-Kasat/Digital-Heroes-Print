@@ -13,10 +13,32 @@ export async function signIn(page: Page, user: { email: string; password: string
   await page.waitForURL((u) => !u.pathname.startsWith("/login"));
 }
 
-/** The page body must never scroll sideways; only tables scroll inside their own box. */
+/**
+ * Nothing may stick out past the viewport. The page clips sideways overflow
+ * (overflow-x: clip), so scrollWidth always looks fine; instead every element's
+ * edges are checked, skipping content inside a box that scrolls on purpose
+ * (tables) and visually hidden screen-reader text.
+ */
 export async function expectNoSidewaysScroll(page: Page) {
-  const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-  expect(over, "page is wider than the viewport").toBeLessThanOrEqual(0);
+  const offenders = await page.evaluate(() => {
+    const vw = document.documentElement.clientWidth;
+    const scrolls = (el: Element | null) => {
+      for (let e = el; e && e !== document.body; e = e.parentElement) {
+        const ox = getComputedStyle(e).overflowX;
+        if (ox === "auto" || ox === "scroll") return true;
+      }
+      return false;
+    };
+    return [...document.body.querySelectorAll("*")]
+      .filter((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.width <= 1 || r.height <= 1) return false;
+        return (r.right > vw + 1 || r.left < -1) && !scrolls(el.parentElement);
+      })
+      .slice(0, 5)
+      .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)}`);
+  });
+  expect(offenders, "elements stick out past the viewport").toEqual([]);
 }
 
 /** Full-page screenshot attached to the HTML report, named by page and width. */

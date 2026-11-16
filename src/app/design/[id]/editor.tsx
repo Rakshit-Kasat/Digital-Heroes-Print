@@ -297,7 +297,7 @@ export function Editor(p: EditorProps) {
               {/* The artboard lies on the cutting mat; the grid uses the artboard's own px-per-mm, so one square is 10 mm of the real piece. */}
               <div className="@container">
               <div className="mat flex min-h-72 items-center justify-center rounded-lg p-4 sm:p-8"
-                style={{ "--k": `min(6px, calc((100cqi - 4rem) / ${doc.widthMm + 2 * doc.bleedMm}), calc(36rem / ${doc.heightMm + 2 * doc.bleedMm}))` } as CSSProperties}>
+                style={{ "--k": `min(6px, calc((100cqi - 4rem) / ${doc.widthMm + 2 * doc.bleedMm}), calc(min(36rem, 70vh) / ${doc.heightMm + 2 * doc.bleedMm}))` } as CSSProperties}>
                 {layout ? (
                   <div className="bg-sheet shadow-[4px_4px_0_0_color-mix(in_oklab,var(--color-ink)_35%,transparent)]" style={{ width: `calc(${doc.widthMm + 2 * doc.bleedMm} * var(--k))` }}>
                     <DesignCanvas

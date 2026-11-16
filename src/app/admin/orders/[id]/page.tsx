@@ -76,8 +76,12 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
     : status === "completed" ? "This job is complete."
     : status === "production" ? "In production. Move it to Completed when the job ships."
     : !latest ? "No proof yet. Send the first proof below."
+    // A job moved back to Artwork: the customer cannot act on a proof until it is in Proof sent again.
+    : status === "artwork" && latest.status === "pending" ? `Proof v${latest.version} is waiting, but the job is in Artwork. Move it to Proof sent so the customer can approve it.`
+    : status === "artwork" && latest.status === "approved" ? `The job was moved back to Artwork after v${latest.version} was approved. Send a new proof below.`
     : latest.status === "pending" ? `Waiting for the customer to approve proof v${latest.version}.`
     : latest.status === "changes_requested" ? `The customer asked for changes to v${latest.version}. Send a new proof below.`
+    : latest.status !== "approved" ? `Proof v${latest.version} is ${latest.status.replace("_", " ")}. Send a new proof below.`
     : item?.print_files.length ? "Print files are ready. Move the job to Production."
     : `Proof v${latest.version} is approved. Generate the print files below.`;
 
@@ -119,7 +123,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
                 ))}
               </div>
             ) : (
-              <p className="mt-2 text-sm text-steel">{status === "completed" ? "This job is complete." : "No stage change is possible yet."}</p>
+              status !== "completed" && <p className="mt-2 text-sm text-steel">No stage change is possible yet.</p>
             )}
             {blockedNext && !blockedNext.v.ok && <p className="mt-3 text-sm text-warning">Next stage ({STAGE_LABEL[blockedNext.s]}) is locked: {blockedNext.v.reason}</p>}
             {(status === "production" || status === "completed") && <p className="mt-3 text-xs text-steel">The customer is emailed when a job enters production and when it is completed.</p>}

@@ -32,7 +32,6 @@ export function Configurator({ product, templates, divisionSlug }: { product: Pr
   const pw = Math.min(Math.max(Number.isFinite(w) ? w : s.width.min, s.width.min), s.width.max);
   const ph = Math.min(Math.max(Number.isFinite(h) ? h : s.height.min, s.height.min), s.height.max);
   const doc = useMemo(() => (template ? instantiateTemplate(template.design, { widthMm: pw, heightMm: ph }, product) : null), [template, pw, ph, product]);
-  const previewSize = { widthMm: pw, heightMm: ph };
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">

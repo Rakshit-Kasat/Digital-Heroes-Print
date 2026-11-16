@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { findDivision, getCatalog } from "@/lib/catalog/queries";
@@ -39,15 +40,22 @@ async function DivisionBody({ params }: Pick<PageProps<"/products/[division]">, 
       <p className="mt-2 max-w-2xl text-steel">{found.division.tagline}</p>
       <ul className="mt-10 grid gap-6 md:grid-cols-2">
         {found.products.map((p) => {
-          const art = samples.filter((s) => s.product.id === p.id);
+          const art = samples.filter((s) => s.product.id === p.id).slice(0, 2);
+          // One scale for both samples, as large as fits the card: 0.9 px per mm at most, the pair's width
+          // inside the padding and gap, and the taller piece inside the 12rem well.
+          const sumW = art.reduce((a, x) => a + x.doc.widthMm, 0) || 1;
+          const maxH = Math.max(1, ...art.map((x) => x.doc.heightMm));
+          const k = `min(0.9px, calc((100cqi - ${3 + 1.5 * Math.max(0, art.length - 1)}rem) / ${sumW}), calc(12rem / ${maxH}))`;
           const s = p.config_schema;
           const price = calculatePrice(s, p.pricing, { widthMm: s.width.default, heightMm: s.height.default, materialId: s.materials[0].id, quantity: s.quantity.default }, VAT_RATE);
           return (
             <li key={p.id} className="panel overflow-hidden">
               <Link href={`/products/${found.division.slug}/${p.slug}`} className="group block">
                 {/* Samples on the mat at the same scale, so the two sizes compare honestly. */}
-                <div className="mat flex h-60 items-end justify-center gap-6 p-6 [--k:0.8px] sm:[--k:0.9px]">
-                  {art.slice(0, 2).map((a) => <MatPiece key={a.sample.title} doc={a.doc} label={a.sample.title} />)}
+                <div className="@container">
+                <div className="mat flex h-60 items-end justify-center gap-6 p-6" style={{ "--k": k } as CSSProperties}>
+                  {art.map((a) => <MatPiece key={a.sample.title} doc={a.doc} label={a.sample.title} />)}
+                </div>
                 </div>
                 <div className="p-5">
                   <h2 className="text-xl font-bold group-hover:underline">{p.name}</h2>

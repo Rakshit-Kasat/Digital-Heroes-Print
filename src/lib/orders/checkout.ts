@@ -35,7 +35,7 @@ export async function startCheckout({ order, item, product, price, email, cancel
           unit_amount: price.subtotalPence,
           product_data: {
             name: `${product.name} × ${Number(item.quantity).toLocaleString("en-GB")}`,
-            description: `Order ${order.number} · ${formatMoney(price.unitPence, "GBP", true)} each${price.setupPence ? " + setup" : ""} · ex VAT`,
+            description: `Order ${order.number}, ${formatMoney(price.unitPence, "GBP", true)} each${price.setupPence ? " plus setup" : ""}, ex VAT`,
           },
         },
       },

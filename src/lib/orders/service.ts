@@ -214,7 +214,7 @@ async function issueInvoice(order: { id: string; number: string; subtotal_pence:
   const number = `INV-${order.number.replace("DH-", "")}`;
   const item = order.order_items[0];
   const snap = item.product_snapshot as { name: string; material?: string; setupPence?: number; itemsPence?: number };
-  const lines = [{ description: `${item.quantity} × ${snap.name}`, detail: `${item.config.widthMm} × ${item.config.heightMm} mm · ${snap.material ?? ""}`, amountPence: snap.itemsPence ?? order.subtotal_pence }];
+  const lines = [{ description: `${item.quantity} × ${snap.name}`, detail: `${item.config.widthMm} × ${item.config.heightMm} mm${snap.material ? `, ${snap.material}` : ""}`, amountPence: snap.itemsPence ?? order.subtotal_pence }];
   if (snap.setupPence) lines.push({ description: "Setup and prepress", detail: "Proofing and file preparation", amountPence: snap.setupPence });
   const pdf = await renderInvoicePdf({
     invoiceNumber: number, orderNumber: order.number, issuedAt: new Date(),
@@ -294,7 +294,7 @@ export async function approveProof(customerId: string, proofId: string) {
   if (!data?.length) throw new Error("This proof has already been answered.");
   await db().from("proof_events").insert({ proof_id: proofId, actor_id: customerId, action: "approved" });
   await db().from("order_events").insert({ order_id: p.order_items.order_id, from_status: p.order_items.orders.status, to_status: p.order_items.orders.status, actor_id: customerId, note: `Proof v${p.version} approved by customer` });
-  if (STUDIO_EMAIL) await sendEmail({ to: STUDIO_EMAIL, template: "staff_proof_approved", orderId: p.order_items.order_id, subject: `${p.order_items.orders.number}: proof v${p.version} approved`, heading: "Proof approved — print files unlocked", paragraphs: [`Order ${p.order_items.orders.number} can move to production.`], cta: { label: "Open the job", path: `/admin/orders/${p.order_items.order_id}` } });
+  if (STUDIO_EMAIL) await sendEmail({ to: STUDIO_EMAIL, template: "staff_proof_approved", orderId: p.order_items.order_id, subject: `${p.order_items.orders.number}: proof v${p.version} approved`, heading: "Proof approved, print files unlocked", paragraphs: [`Order ${p.order_items.orders.number} can move to production.`], cta: { label: "Open the job", path: `/admin/orders/${p.order_items.order_id}` } });
   return p;
 }
 

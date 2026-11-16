@@ -30,7 +30,10 @@ test("staff job page states the next step first", async ({ page }, info) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Job board");
   await shoot(page, info, "jobs");
 
-  await page.getByRole("table").getByRole("link").first().click();
+  // A job in Proof sent is paid, designed online and not yet in production, so both proof forms show.
+  // Phones get job cards, wider screens the table: open whichever job link is showing.
+  await page.goto("/admin?status=proof");
+  await page.locator('a[href^="/admin/orders/"]:visible').first().click();
   await expect(page.getByRole("heading", { name: "Next step" })).toBeVisible();
   // The two proof forms each name their own note field.
   await expect(page.getByLabel(/Note sent with this proof/)).toBeVisible();
