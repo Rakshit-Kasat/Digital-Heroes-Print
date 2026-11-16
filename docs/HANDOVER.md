@@ -1,10 +1,26 @@
 # Handover: Digital Heroes Print (web-to-print platform)
 
-Date: 2026-11-17 · Last commit at time of writing: `5f52b1e` · Branch: `main` (no git remote yet)
+Date: 2026-11-17 · Updated after the cutting-mat redesign went live (branch `redesign` merged into `main`) · No git remote yet
 
 Labels used below: **VERIFIED** means it was run or seen. **ASSUMED** means it was reasoned from the code or the docs but not run. **NOT CHECKED** means it was not looked at.
 
 ---
+
+## 0. Redesign (2026-11-17, live)
+
+Rakshit picked direction B, "Cutting mat", from three options. Products sit on a green cutting mat with a 10 mm grid, drawn at true relative scale.
+
+- **Scope:** home, product families, product configurator, designer, customer area and staff console.
+- **Checks, VERIFIED:**
+  - Hallmark lint: 0 FAIL (was 9). All 54 links, 31 fields and 86 handlers kept.
+  - Unit tests: 36/36.
+  - tsc, eslint and the production build pass.
+  - Playwright suite (`npm run e2e`): 27 pass at 375, 768 and 1280 px.
+  - Paid order flow (`npm run e2e:pay`): passes on localhost with the Stripe test card.
+- **Reviews:** critic (Opus) and ux-auditor (Sonnet) ran. Their findings are fixed or answered (see STATUS.md).
+- **Approval:** Rakshit approved the preview, then it went to production.
+- **Before and after:** screenshots in `docs/redesign/before` and `docs/redesign/after`; the audit is in `docs/redesign/AUDIT.md`.
+- **Demo data:** test runs added 4 paid orders and 2 unpaid quotes to `customer@dhprint.test`.
 
 ## 1. What was built
 
