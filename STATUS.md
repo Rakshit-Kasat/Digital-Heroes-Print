@@ -28,7 +28,7 @@ Locked choices: GBP + 20% VAT (setting) · Stripe test mode · Gmail SMTP for em
 - [ ] Phase 9 — deploy (gate: Rakshit checks preview), Stripe webhook endpoint + secret
 - [ ] Phase 10 — README, DECISIONS.md, LEARN.md, /handover, /retro
 - [ ] Rakshit: Gmail App Password into SMTP_PASS (emails currently fail: 535 bad credentials; logged in email_log)
-- [ ] Rakshit: VERCEL_TOKEN (new account, scope "Digital Heroes Print") into .env.local. The global Vercel CLI login is `teamsocialtrap-7165` = OLD account: never deploy without `--token $VERCEL_TOKEN --scope digital-heroes-print`.
+- [x] Vercel (2026-11-17): CLI 65.16.0. The NEW account (`g2hklic-7240`) is logged in through a separate config dir, so the old global login (`teamsocialtrap-7165`) is untouched. EVERY vercel command must carry `-Q "C:/Users/raksh/.vercel-dh" --scope digital-heroes-print`. The project `digital-heroes-print` is linked (.vercel/, gitignored). 12 env vars are set for production+preview (secrets are sensitive). NOT set yet: NEXT_PUBLIC_APP_URL (production only, after the domain is known), STRIPE_WEBHOOK_SECRET. `src/lib/app-url.ts` falls back to the Vercel deployment URL.
 
 ## Usage log
 - Build session 2026-11-16/17 (Opus): 5h window at 68% after phases 1-6 (customer side); week 12%.

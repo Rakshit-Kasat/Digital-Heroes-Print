@@ -6,8 +6,9 @@
 import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
 import { adminClient } from "@/lib/supabase/server";
+import { appUrl } from "@/lib/app-url";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const APP_URL = appUrl();
 export const STUDIO_EMAIL = process.env.EMAIL_FROM?.match(/<(.+)>/)?.[1] ?? process.env.SMTP_USER ?? "";
 
 let transport: Transporter | null = null;
