@@ -1,0 +1,417 @@
+§ 00 · PRODUCT REQUIREMENTS · 2026 EDITION  DIGITALHEROES.CO.IN
+
+PRODUCT REQUIREMENTS DOCUMENT · SAMPLE ASSIGNMENT
+
+Digital Heroes PRD
+
+(Level 2)
+
+A custom web-to-print platform brief for full-stack
+development trainees. Edition 2026
+
+Six print divisions, one owned platform. This document is the single source
+of truth for what you are asked to design, build, and ship during the
+selection process.
+
+VERSION 1.0 · MARCH 2026
+
+ISSUED FOR SELECTION PROCESS ONLY
+§ 01 · CONTENTS
+
+What's inside. § 01 · CONTENTS
+
+A full read of the PRD assignment, from the brief to the build to how your submission will
+be judged. Sixteen sections, then a closing brief with everything you need to start.
+
+SECTIONS
+
+01 Project overview What the platform is and who uses it                                    PG 03
+
+02 Core objectives The eight outcomes you must deliver                                      PG 03
+
+03 User roles Visitor, customer, administrator                                              PG 04
+
+04 Product catalogue & configuration Six divisions, parameter-driven logic                  PG 04
+
+05 Pricing & checkout Instant calculator and order capture                                  PG 05
+
+06 Web-to-print designer Editing inside defined print areas                                 PG 05
+
+07 Print-file & variable-data engine Production output and CSV merge                        PG 06
+
+08 Proof & version control Versioned proofs and approvals                                   PG 06
+
+09 Accounts & reorder Saved designs and one-click reorder                                   PG 07
+
+10 Customer dashboard Required customer-side modules                                        PG 07
+
+11 Production dashboard The internal job pipeline                                           PG 08
+
+12 UI / UX requirements Boutique-industrial direction                                       PG 08
+
+13 Technical requirements Stack, security, performance                                      PG 09
+
+14 Scalability considerations Building for what comes next                                  PG 09
+
+15 Mandatory deliverables What you must hand over                                           PG 10
+
+16 Evaluation & testing How your work is scored                                             PG 10
+
+DIGITAL HEROES   · PRD · SAMPLE · 2026                                                      02 / 11
+§ 01 · PROJECT OVERVIEW                                                              01
+
+Project overview. § 01 · THE BRIEF
+
+Build a custom web-to-print platform for a multi-division print business. Customers
+
+configure, design, proof, and order print products online; staff run every job from quote to
+
+production in one place.
+
+PRD is a subscription-free, transactional web-to-print platform for a print house running six divisions under
+one roof: labels & stickers, race & event numbers, MTB boards, stamps, trophies, and laser-cut work. It
+must feel like a modern, Shopify-grade storefront, but do real production work the moment an order lands --
+not stop at an artwork upload.
+
+Customers will be able to:
+
+   Browse the six product ranges and see live examples of real print work.
+
+Configure a product (size, material, quantity) and get an instant price.
+
+Design artwork in-browser or upload finished files, then approve a proof.
+
+Pay, track the order, and reorder in one click from saved designs.          02 1OWNED PLATFORM
+
+6PRODUCT DIVISIONS                        2USER JOURNEYS
+
+Core § 0 2 · C O R E O B J E C T I V E S
+
+       objectives.
+
+Pricing engine                            Instant per-unit pricing by product, size and quantity, with automatic volume
+                                          discounts.
+
+Web-to-print designer                     In-browser editing constrained to printable zones, with a real-time proof
+                                          preview.
+
+Flexible product logic                    Parameter-driven products -- dynamic sizing, not one SKU per dimension.
+Print-file output                         Automated high-resolution, production-ready files generated per order.
+
+Accounts & reorder                        Customer accounts with order history, saved designs and one-click reorder.
+Production dashboard                      An internal console to run every job through a clear pipeline.
+
+Outstanding UI/UX                         A confident, modern interface that does not look like a generic print store.
+
+DIGITAL HEROES                            · PRD · SAMPLE · 2026                               03 / 11
+User roles. 03 § 03 · USER ROLES
+
+§ 03 · WHO USES IT
+
+Three roles share one backend. Define permissions clearly -- what each role can see and
+do is part of the assessment.
+
+ Public visitor                    Registered customer                      Administrator
+
+-- View the platform and product  -- Manage profile & settings             -- Manage users & orders
+  ranges                          -- Configure, design & order             -- Run the production pipeline
+                                                                           -- Download print-ready files
+-- Browse the live work gallery     products                               -- Manage products & templates
+-- Use the instant price          -- Approve proofs / request              -- Access reports & analytics
+
+  calculator                        changes
+
+-- Initiate signup / first order  -- View order history & reorder
+                                  -- Save and reuse past designs
+
+A catalogue 04 § 04 · PRODUCT CATALOGUE & CONFIGURATION
+                 without bloat.
+
+A small, clean front-end catalogue powered by flexible logic, so the range can grow
+without flooding the admin with near-duplicate SKUs.
+
+THE SIX DIVISIONS
+LABELS & STICKERS  RACE & EVENT NUMBERS  MTB BOARDS                STAMPS  TROPHIES
+
+LASER-CUT WORK
+
+CONFIGURATION RULES
+
+   Parameter-driven products. A single product models many variants -- do not create one SKU per size.
+   Dynamic sizing. Size, material, orientation and quantity are configured, not pre-listed.
+   Per-placeholder fitting rules. Shrink-to-fit, tracking, and min/max font size so content always fits the print
+   area.
+
+Why it matters.
+
+One flexible product replaces dozens of near-duplicate SKUs, cutting catalogue bloat and admin overhead in
+equal measure.
+
+DIGITAL HEROES                    · PRD · SAMPLE · 2026                              04 / 11
+Pricing & checkout. 05 § 05 · PRICING & CHECKOUT
+
+§ 05 · MONEY IN
+
+Transactional, not subscription. The platform earns per order, priced live by an instant
+calculator -- no quote forms, no waiting.
+
+Pricing engine    Live per-unit pricing by product, size and quantity. Price updates instantly as
+                  options change.
+
+Volume discounts  Applied automatically from a defined quantity floor (e.g. from 100 units).
+Tax               VAT-inclusive totals shown at a glance; final price confirmed at checkout with no
+                  surprises.
+
+Gateway           Stripe or an equivalent PCI-compliant provider via an integrated checkout.
+Order capture     Payment and full order data written to the structured backend against the customer
+                  account.
+
+Design inside 06 Accounting-ready
+                  Order records structured for clean export to accounting (Xero-ready data shape).
+
+No subscription tax.
+
+Revenue is per order. Do not build a recurring-billing model -- build a clean, fast, per-order checkout instead.
+
+§ 06 · WEB-TO-PRINT DESIGNER
+
+                   the lines.
+
+The designer lets customers build artwork in-browser, but only inside producible zones, so
+
+nothing unprintable reaches the production floor.
+
+Template-driven editing. Add and edit text, choose fonts and sizes, set colours, upload logos, and
+reposition, resize or rotate elements.
+
+Print-area constraints. Editing is locked to defined print areas; unprintable artwork cannot be created.
+
+Real-time proof preview. Artwork is shown in position -- what is approved matches what is printed.
+
+Upload path. Customers may upload finished artwork instead (PDF, SVG, AI, PNG).
+
+Saved designs. Approved artwork is stored against the account for fast repeat ordering.
+
+DIGITAL HEROES                 · PRD · SAMPLE · 2026                                                05 / 11
+The print-file engine. 07 § 07 · PRINT-FILE & VARIABLE DATA
+
+§ 07 · WHERE IT EARNS ITS KEEP
+
+This is the part that separates a real web-to-print platform from a generic store: turning an
+approved design into a file a printer can actually run.
+
+PRODUCTION OUTPUT
+
+   Automated print-ready files. Per-order high-resolution PDF and PNG, with defined bleed and resolution
+   per product type.
+   CSV variable-data merge. Server-side processing generates one artwork file per row for race numbers
+   and bulk jobs -- no manual tweaking.
+   Per-placeholder fitting. Shrink-to-fit, horizontal tracking and min/max font size so variable content always
+   fits.
+
+STRUCTURE BY DEFAULT
+
+Outputs follow a predictable naming convention and are grouped in order-based directories:
+
+ OrderID_ProductType_Date_Output
+
+  Server-side where it counts.
+
+   Print-file generation and CSV merge must run on the server, keeping heavy processing off the customer's
+   device and consistent across every order.
+
+08 § 08 · PROOF & VERSION CONTROL
+
+Versioning that holds up.
+
+Every proof revision is logged, so there is never a question of which file the customer
+actually approved.
+
+   Versioned proofs. Each revision is stored as v1, v2 ... against the order.
+   Approval logs. Record who approved which version and when.
+   Change requests. Customers can request revisions before approving the final proof.
+   Approval gate. Print-ready files unlock only once a proof is approved.
+
+DIGITAL HEROES  · PRD · SAMPLE · 2026  06 / 11
+Accounts & reorder. 09 § 09 · ACCOUNTS & REORDER
+
+§ 09 · THE CONNECTIVE TISSUE
+
+Customer accounts that remember everything turn a repeat job into a single click and keep
+proofs retrievable against the account.
+
+   Authentication. Secure login and registration.
+   Order history. Every past order, its status and its files, accessible to the customer.
+   Saved proofs & designs. Approved artwork stored for reuse.
+   One-click reorder. Re-place a previous order from saved artwork without redesigning.
+
+§ 10 · CUSTOMER DASHBOARD
+
+The customer view.
+
+The signed-in customer dashboard must include all of the following modules.
+10 Note: the customer never sees production files or other customers' data. Keep the customer view
+
+and the admin view strictly separated by role.
+ Account & profile status                 Active proofs and their version state
+ Order history with current status        One-click reorder of past jobs
+ Score / configuration of saved designs   Downloadable invoices / receipts
+
+DIGITAL HEROES                           · PRD · SAMPLE · 2026                   07 / 11
+§ 11 · PRODUCTION DASHBOARD                                                                 11
+
+Production dashboard. § 11 · ONE QUEUE, QUOTE TO DONE
+
+The internal console is a single source of truth. Every order arrives with its artwork and
+configuration attached, and moves through a clear pipeline.
+
+THE PIPELINE
+
+QUOTE  ORDER    ARTWORK      PROOF           PRODUCTION  COMPLETED
+
+REQUIRED CAPABILITIES
+
+  01 Searchable job database. Filter by status, customer, date and product type.
+
+02 Ready-for-production indicators. Every order shows whether files are unlocked.
+
+03 Download production files. Pull high-resolution PDFs and per-row CSV artwork from the order
+
+      record.
+
+04 Advance the pipeline. Move jobs through each stage with status updates.
+
+  05 Reports & analytics. Totals for orders, revenue and product-family throughput.         12
+  06 Archive. Completed work is retained for fast retrieval on repeat and event orders.
+
+§ 12 · UI / UX REQUIREMENTS
+
+Boutique industrial.
+
+Clean, technical and fast -- warm enough for makers and small businesses. It must not
+
+look like a generic, templated print store.
+
+Feel                                                     Required surfaces
+
+A confident accent colour driving every call to action,  A product hub of equal-weight tiles as navigation, a
+on a neutral base. Geometric headings, a body face       live instant-price calculator, and a gallery of real work
+built for dense specs on a phone.                        organised by product family.
+
+Direction in one line: mobile-first, motion-enhanced, fast. Subtle transitions and micro-
+interactions -- capable and modern without shouting over the products.
+
+DIGITAL HEROES                               · PRD · SAMPLE · 2026                              08 / 11
+§ 13 · TECHNICAL REQUIREMENTS                                                       13
+
+Technical § 13 · UNDER THE HOOD
+
+              requirements.
+
+A modern, transferable stack with nothing exotic. Heavy work runs server-side. The
+
+reference stack below is recommended; equivalents are acceptable if justified.
+
+RECOMMENDED STACK
+
+Frontend   REACT     TAILWIND
+
+  NEXT.JS
+
+Backend    SUPABASE  SERVER APIS
+
+  NODE.JS
+
+Storage & integrations            XERO-READY
+
+  CLOUD STORAGE PAYMENT GATEWAY
+
+NON-NEGOTIABLE
+
+   Mobile-first, fully responsive across mobile and desktop.
+   Fast performance -- optimised assets, minimal blocking resources.
+
+Built to 14 Secure authentication -- JWT or session-based, HTTPS enforced.
+   Email notifications -- order updates, proof status, completion alerts.
+   Server-side file generation for print files and CSV merge.
+
+§ 14 · SCALABILITY CONSIDERATIONS
+
+           grow.
+
+   Architecture must support adding new product divisions and template groups without rework.
+   Data structures extensible toward corporate / multi-account ordering.
+   Codebase structured to support a future mobile-app version.
+   An accounting-integration path (full Xero API) ready to switch on later.
+
+DIGITAL HEROES                    · PRD · SAMPLE · 2026                             09 / 11
+§ 15 · MANDATORY DELIVERABLES                                                              15
+
+Mandatory § 15 · WHAT YOU HAND OVER
+Live website                   deliverables.
+
+                        A fully deployed, publicly accessible URL.
+
+Customer panel          Test credentials; signup / login / configure / design / proof / dashboard all
+                        functional.
+
+Admin panel             Admin credentials; user management, production pipeline, file download, reports.
+
+Database                Backend connected (e.g. Supabase) with a proper, documented schema.
+
+Source code             Clean, structured, well-commented codebase.
+
+DEPLOYMENT CONSTRAINTS
+
+Deploy to a new Vercel account -- not a personal or existing one.                          16
+Use a new Supabase project -- not a personal or existing one.
+Environment variables must be properly configured and never committed.
+
+How it's § 1 6 · E V A L U A T I O N & T E S T I N G
+
+            scored.
+
+Requirements            How accurately requirements are translated into working features.
+interpretation
+
+System design           Quality of architecture decisions and data modelling.
+
+UI/UX creativity        Originality, polish and engagement of the interface.
+
+Data handling           Accuracy of pricing, file output and order logic.
+
+Scalability thinking Extensibility of the codebase and data structures.
+
+Problem-solving         How ambiguous requirements are identified and resolved.
+
+TESTING CHECKLIST                                      Print-file & CSV merge output
+                                                       Reorder flow
+ Signup & login                                        Admin pipeline & file download
+ Product configuration & live pricing                  Responsive on mobile & desktop
+ Volume-discount calculation                           Error handling & edge cases
+ Designer -- print-area constraints
+ Proof versioning & approval gate
+
+DIGITAL HEROES                                        · PRD · SAMPLE · 2026                            10 / 11
+§ FIN · START BUILDING                                                 DIGITALHEROES.CO.IN
+
+Build the platform.
+
+This brief is your single source of truth. Where it is silent, make a
+reasonable decision, document it, and be ready to defend it --
+identifying and resolving ambiguity is part of what we are assessing.
+
+DOCUMENT                                 PURPOSE
+
+PRD -- Sample                            Trainee selection assignment
+
+VERSION                                  AUDIENCE
+
+1.0 · March 2026                         Full-stack development trainees
+
+WEBSITE                                  SUBMISSIONS
+
+digitalheroes.co.in                      hr@digitalheroes.co.in
+
+© 2026 DIGITAL HEROES · PRD SAMPLE V1.0
+
