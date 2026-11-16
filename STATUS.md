@@ -37,20 +37,9 @@ Locked choices: GBP + 20% VAT (setting) · Stripe test mode · Gmail SMTP for em
 - Accounts by Claude in Chrome + scaffold (Opus, no agents): 5h 15% -> ~20%, week 3% -> ~6%, context 44% -> ~70%. Screenshots are the main cost.
 
 ## Next step (resume here)
-Rakshit is away until morning: complete everything autonomously. UX audit fixes DONE (uncommitted at time of writing: globals.css focus/44px/border, header mobile, error.tsx (uses `retry` prop in Next 16), not-found.tsx, footer contact, home CTA + copy, print-sheet attr escaping, quick-quote aria-live, configurator aria-describedby, auth email attrs). README rewritten (credentials from seed). tsc/eslint/33 tests pass.
-Critic findings TO FIX (service.ts etc.):
- 1. Fulfilment lost if success page claims paid_at then fulfil throws: webhook gets markPaid=false and 200s. Fix: webhook returns 500 (Stripe retries) or runs fulfil when paid but no invoice.
- 2. Server trusts client csvRows: parse CSV server-side in createOrderFromDesign; reject csvPath if !supports_csv.
- 3. regenerateProof/uploadProof allowed at any stage: allow only order/artwork/proof with paid_at.
- 4. Old print_files stay "ready" after a new proof: delete print_files in storeProof.
- 5. requestChanges writes proof before checking order is in proof.
- 6. report_division_throughput counts unpaid quotes (left join): new migration with filter.
- 11. Order page unit = line_total/qty includes setup: subtract setup (use snapshot/itemsPence).
- 13. markPaid: check amount_total/currency vs order.
- 14. reorder: require source paid.
- 15. schema.ts:31 image path prefix check: reject "..".
- Document as known limits (DECISIONS/HANDOVER): 7 reports/Xero no paging >1000 rows; 8 proof version race; 9 order create not atomic (RPC later); 10 CSV merge in after() no queue; 12 unit_price_pence int.
-Then: security-auditor findings (agent running), commit, `npm run build`, `vercel deploy --prod -Q "C:/Users/raksh/.vercel-dh" --scope digital-heroes-print`, curl-check live, docs/DECISIONS.md, docs/LEARN.md, /handover, usage log.
+DONE 2026-11-17 night (commit d0e4867, deployed to production): all critic fixes (1-6, 11, 13-15) and security-audit fixes (storage-path rule, migration 0005 DB guards, generic sign-up error, SVG/CSV download only, CSP frame-ancestors + HSTS, message-only error logs). rls-check 18/18, 36 unit tests, tsc, eslint, build all pass. Local e2e after fixes: reorder DH-001005 -> DH-001008 paid (live webhook claimed it), request changes, admin proof v2 (VERIFIED).
+Remaining: docs/DECISIONS.md, docs/LEARN.md, docs/HANDOVER.md, retro, morning report.
+Known limits to document: reports/Xero no paging >1000 rows; proof version race; order create not atomic; CSV merge in after() no queue; unit_price_pence int; no rate limit/CAPTCHA on auth; pre-confirmed sign-up; webhook does work inline (no event store/queue); Supabase cookies not httpOnly (library default); demo passwords in README/seed (rotate if repo goes public).
 
 ## Older notes
 Phase 1 (schema + RLS + seed) once `.env.local` is filled. Start a fresh session (Sonnet) with:

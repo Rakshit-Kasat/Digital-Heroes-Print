@@ -82,6 +82,9 @@ try {
     check("design image cannot point at another bucket", !!img.error);
     await service.from("designs").delete().eq("id", design.id);
   }
+  // Migration 0006: even the service role cannot move an order without an approved proof into production.
+  const gate = await service.from("orders").update({ status: "production" }).eq("id", order.id).select("id");
+  check("database refuses Production without an approved proof", !!gate.error);
   const mail = await cust.c.from("profiles").update({ email: "someone-else@example.com" }).eq("id", cust.id).select("email");
   const { data: prof } = await service.from("profiles").select("email").eq("id", cust.id).single();
   check("customer cannot change the email orders are sent to", !!mail.error && prof?.email === custU.email);
