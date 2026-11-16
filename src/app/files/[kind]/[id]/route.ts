@@ -6,6 +6,8 @@
  *   /files/invoice/<orderId>   customer (own order) or admin
  *   /files/proof/<proofId>     customer (own order) or admin
  *   /files/print/<fileId>      admin only (print_files has no customer policy)
+ *   /files/artwork/<itemId>    admin only: the customer's original upload
+ *   /files/csv/<itemId>        admin only: the variable-data CSV
  *
  * A customer asking for a print file gets 404: RLS returns no row, so
  * there is nothing to sign. Customers never receive production files.
@@ -39,6 +41,13 @@ export async function GET(req: Request, ctx: RouteContext<"/files/[kind]/[id]">)
   } else if (kind === "print" && user.role === "admin") {
     const { data } = await supabase.from("print_files").select("path").eq("id", id).maybeSingle();
     if (data) { path = data.path; name = data.path.split("/").pop(); }
+  } else if ((kind === "artwork" || kind === "csv") && user.role === "admin") {
+    const { data } = await supabase.from("order_items").select("upload_path, csv_path, orders(number)").eq("id", id).maybeSingle();
+    const p = kind === "artwork" ? data?.upload_path : data?.csv_path;
+    if (data && p) {
+      const number = (data.orders as unknown as { number: string } | null)?.number ?? "order";
+      path = p; name = `${number}_${kind === "artwork" ? "customer-artwork" : "names"}.${p.split(".").pop()}`;
+    }
   }
   if (!path) return notFound();
 
