@@ -7,8 +7,15 @@ Locked choices: GBP + 20% VAT (setting) · Stripe test mode · Gmail SMTP for em
 ## Progress
 - [x] Plan approved (2026-11-16)
 - [x] Folder set up, plan + PRD copied into docs/
-- [ ] Phase 0 — accounts (Rakshit): new Gmail, Vercel, Supabase, Stripe, Gmail app password
-- [ ] Phase 0 — scaffold Next.js 16 + git + .env.example
+- [x] Phase 0 — accounts, all under g2hklic@gmail.com (VERIFIED on screen 2026-11-16):
+  - Vercel: Hobby plan, team "Digital Heroes Print" (slug digital-heroes-print)
+  - Stripe: country United Kingdom, Sandbox/test mode (declined the "Stripe India preview" pop-up)
+  - Supabase: org "g2hklic@gmail.com's Org"; project `digital-heroes`, Mumbai (ap-south-1), automatic RLS on.
+    Ignore the auto-made "g2hklic@gmail.com's Project" (Sydney) — not used.
+- [ ] Phase 0 — Rakshit: Gmail app password, then fill `.env.local` (template ready, names match `.env.example`)
+- [x] Phase 0 — scaffold: Next.js 16.4.6, React 19.3, Tailwind 4.3, TS, ESLint, src/ dir, branch `main`, 2 commits.
+  NOTE: Next 16 has breaking changes — read `node_modules/next/dist/docs/` before writing code (see AGENTS.md).
+  Do NOT use the Supabase/Vercel MCP connectors in this app: they are linked to Rakshit's OLD accounts. Use CLIs (`npx supabase`, `vercel`) logged in to the new accounts.
 - [ ] Phase 1 — schema + RLS + seed
 - [ ] Phase 2 — design directions (gate: Rakshit picks)
 - [ ] Phase 3 — storefront + pricing
@@ -22,7 +29,11 @@ Locked choices: GBP + 20% VAT (setting) · Stripe test mode · Gmail SMTP for em
 
 ## Usage log
 - Planning session (Opus): 5h window 10% -> 15%, weekly reset mid-session (now 3%).
+- Accounts by Claude in Chrome + scaffold (Opus, no agents): 5h 15% -> ~20%, week 3% -> ~6%, context 44% -> ~70%. Screenshots are the main cost.
 
 ## Next step
-Rakshit finishes the 5 account steps. Then a fresh session (Sonnet) runs Phase 0 scaffold.
+Phase 1 (schema + RLS + seed) once `.env.local` is filled. Start a fresh session (Sonnet) with:
+
+> Read STATUS.md, docs/PLAN.md and AGENTS.md in D:\Digital Heroes. `.env.local` is filled. Start Phase 1 (schema + RLS + seed), then continue phase by phase, teaching me as you go. Ask before using sub-agents.
+
 Keys go straight into `.env.local` (never pasted in chat, never committed).
