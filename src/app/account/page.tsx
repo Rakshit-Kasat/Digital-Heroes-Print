@@ -98,7 +98,7 @@ async function Dashboard() {
       <section aria-labelledby="orders-h">
         <h2 id="orders-h" className="text-xl font-bold">Orders</h2>
         {rows.length ? (
-          <div className="panel mt-4 overflow-x-auto">
+          <div className="panel mt-4 relative overflow-x-auto">
             <table className="w-full min-w-[640px] text-sm">
               <thead className="border-b border-hairline text-left text-steel">
                 <tr>

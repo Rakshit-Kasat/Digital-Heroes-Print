@@ -42,7 +42,7 @@ async function Users({ searchParams }: Pick<PageProps<"/admin/users">, "searchPa
           <button className="btn-secondary py-2">Search</button>
         </form>
       </div>
-      <div className="panel overflow-x-auto">
+      <div className="panel relative overflow-x-auto">
         <table className="w-full min-w-[720px] text-sm">
           <thead className="border-b border-hairline text-left text-steel">
             <tr>

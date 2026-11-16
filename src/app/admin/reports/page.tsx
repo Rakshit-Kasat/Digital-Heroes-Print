@@ -86,7 +86,7 @@ async function Reports() {
 
       <section aria-labelledby="div-h" className="panel p-5">
         <h2 id="div-h" className="text-lg font-bold">Throughput by product family</h2>
-        <div className="mt-3 overflow-x-auto">
+        <div className="mt-3 relative overflow-x-auto">
           <table className="w-full min-w-[560px] text-sm">
             <thead className="text-left text-steel">
               <tr><th className="py-1.5 font-medium">Family</th><th className="py-1.5 text-right font-medium">Orders</th><th className="py-1.5 text-right font-medium">Units</th><th className="py-1.5 pl-4 font-medium">Revenue ex VAT</th></tr>

@@ -110,7 +110,8 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
             <p className="mt-1 font-display text-xl font-bold text-balance">{nextStep}</p>
             {allowed.length ? (
               <div className="mt-3 flex flex-wrap gap-3">
-                {allowed.map(({ s }) => (
+                {/* Forward move first: it is the primary action. */}
+                {[...allowed].sort((a, b) => STAGES.indexOf(b.s) - STAGES.indexOf(a.s)).map(({ s }) => (
                   <ActionForm key={s} action={advance} submit={`Move to ${STAGE_LABEL[s]}`} tone={STAGES.indexOf(s) > STAGES.indexOf(status) ? "primary" : "secondary"} confirm={`Confirm: ${STAGE_LABEL[s]}`}>
                     <input type="hidden" name="orderId" value={o.id} />
                     <input type="hidden" name="to" value={s} />

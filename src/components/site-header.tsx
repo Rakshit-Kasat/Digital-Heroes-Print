@@ -25,7 +25,7 @@ export function SiteHeader() {
           </Suspense>
         </div>
       </div>
-      <nav aria-label="Main mobile" className="flex gap-6 overflow-x-auto border-t border-hairline px-4 text-sm font-medium text-steel md:hidden">
+      <nav aria-label="Main mobile" className="flex gap-6 relative overflow-x-auto border-t border-hairline px-4 text-sm font-medium text-steel md:hidden">
         <Link className="py-3 hover:text-ink" href="/products">Products</Link>
         <Link className="py-3 hover:text-ink" href="/gallery">Gallery</Link>
         <Link className="py-3 hover:text-ink" href="/#how-it-works">How it works</Link>

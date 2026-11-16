@@ -131,7 +131,7 @@ async function Board({ searchParams }: Pick<PageProps<"/admin">, "searchParams">
       {error && <p role="alert" className="text-sm text-danger">Could not load jobs: {error.message}</p>}
 
       {rows.length ? (
-        <div className="panel overflow-x-auto">
+        <div className="panel relative overflow-x-auto">
           <table className="w-full min-w-[860px] text-sm tabular-nums">
             <thead className="border-b-[1.5px] border-ink bg-mist text-left text-steel">
               <tr>

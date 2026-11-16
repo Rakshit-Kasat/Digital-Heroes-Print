@@ -17,7 +17,7 @@ export function AdminNav() {
 /** Also the Suspense fallback (path unknown while prerendering: nothing marked). */
 export function NavLinks({ path }: { path: string | null }) {
   return (
-    <nav aria-label="Production console" className="mb-8 flex gap-1 overflow-x-auto overflow-y-hidden border-b border-hairline text-sm font-medium">
+    <nav aria-label="Production console" className="mb-8 flex gap-1 relative overflow-x-auto overflow-y-hidden border-b border-hairline text-sm font-medium">
       {NAV.map((n) => {
         const active = !!path && (n.href === "/admin" ? path === "/admin" || path.startsWith("/admin/orders") : path.startsWith(n.href));
         return (

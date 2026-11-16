@@ -259,7 +259,7 @@ export function Editor(p: EditorProps) {
         </p>
       </div>
 
-      <div role="tablist" aria-label="Artwork source" className="mt-4 flex gap-1 overflow-x-auto">
+      <div role="tablist" aria-label="Artwork source" className="mt-4 flex gap-1 relative overflow-x-auto">
         {tabs.map((t) => (
           <button key={t.id} role="tab" type="button" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
             className={`whitespace-nowrap rounded-t-md border-b-2 px-4 py-2 text-sm font-semibold ${tab === t.id ? "border-accent text-ink" : "border-transparent text-steel hover:text-ink"}`}>
