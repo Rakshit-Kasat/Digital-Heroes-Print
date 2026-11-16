@@ -38,6 +38,10 @@ export default async function Home() {
             Labels, race numbers, MTB boards, stamps, trophy plates and laser-cut signs, made to your measurements.
             Design in the browser or upload your file, approve the proof, and we print exactly that.
           </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a className="btn-primary" href="#quote">Get a price</a>
+            <Link className="btn-secondary" href="/products">Browse products</Link>
+          </div>
           <div className="mt-8 sheet-shadow max-w-2xl rounded-sm bg-sheet p-3 sm:p-5">
             {hero && <AnnotatedSheet doc={hero.doc} label="A race bib proof with crop marks, 3 mm bleed and the safe area marked" />}
           </div>
@@ -52,7 +56,7 @@ export default async function Home() {
 
       <section aria-labelledby="divisions" className="border-y border-hairline bg-sheet">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6">
-          <h2 id="divisions" className="text-3xl font-extrabold">Six workshops, one order flow</h2>
+          <h2 id="divisions" className="text-3xl font-extrabold">What we make</h2>
           <p className="mt-2 max-w-2xl text-steel">Every product is set up as rules, not fixed sizes: choose any width and height in range, and the price follows.</p>
           <ul className="mt-8 grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-3">
             {divisions.map((d) => {
@@ -64,7 +68,7 @@ export default async function Home() {
                 <li key={d.id} className="bg-sheet">
                   <Link href={`/products/${d.slug}`} className="group flex h-full flex-col p-6 hover:bg-paper">
                     <div className="flex h-44 items-center justify-center rounded bg-mist p-5">
-                      {art && <PrintArt doc={art.doc} label={art.sample.title} className="w-full max-w-[220px] max-h-full drop-shadow-sm transition-transform duration-200 group-hover:-translate-y-0.5" />}
+                      {art && <PrintArt doc={art.doc} label={art.sample.title} className="w-full max-w-[220px] max-h-full transition-transform duration-200 group-hover:-translate-y-0.5" />}
                     </div>
                     <h3 className="mt-5 text-xl font-bold">{d.name}</h3>
                     <p className="mt-1 text-sm text-steel">{d.tagline}</p>
@@ -78,13 +82,15 @@ export default async function Home() {
       </section>
 
       <section id="how-it-works" aria-labelledby="how" className="mx-auto max-w-7xl scroll-mt-20 px-4 py-16 sm:px-6">
-        <h2 id="how" className="text-3xl font-extrabold">How an order runs</h2>
+        <h2 id="how" className="text-3xl font-extrabold">From artwork to finished job</h2>
         <p className="mt-2 max-w-2xl text-steel">The same six stages you can follow from your account, from first click to finished job.</p>
         <ol className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((s, i) => (
             <li key={s.title} className="border-t-2 border-ink pt-4">
-              <p className="font-display text-sm font-bold text-accent">Stage {i + 1}</p>
-              <h3 className="mt-1 text-lg font-bold">{s.title}</h3>
+              <h3 className="flex items-baseline gap-3 text-lg font-bold">
+                <span className="font-display text-3xl font-extrabold leading-none text-accent" aria-hidden>{i + 1}</span>
+                {s.title}
+              </h3>
               <p className="mt-1 text-sm text-steel">{s.body}</p>
             </li>
           ))}
@@ -92,7 +98,7 @@ export default async function Home() {
       </section>
 
       <section aria-labelledby="merge" className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid items-center gap-10 rounded-lg bg-ink p-6 text-paper sm:p-10 lg:grid-cols-[1fr_1.2fr]">
+        <div className="grid items-center gap-10 rounded-sm border-t-4 border-accent bg-ink p-6 text-paper sm:p-10 lg:grid-cols-[1fr_1.2fr]">
           <div>
             <h2 id="merge" className="text-3xl font-extrabold">Five hundred runners, one upload</h2>
             <p className="mt-3 text-paper/75">

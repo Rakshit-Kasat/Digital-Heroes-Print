@@ -25,10 +25,10 @@ export function SiteHeader() {
           </Suspense>
         </div>
       </div>
-      <nav aria-label="Main mobile" className="flex gap-5 overflow-x-auto border-t border-hairline px-4 py-2 text-sm font-medium text-steel md:hidden">
-        <Link href="/products">Products</Link>
-        <Link href="/gallery">Gallery</Link>
-        <Link href="/#how-it-works">How it works</Link>
+      <nav aria-label="Main mobile" className="flex gap-6 overflow-x-auto border-t border-hairline px-4 text-sm font-medium text-steel md:hidden">
+        <Link className="py-3 hover:text-ink" href="/products">Products</Link>
+        <Link className="py-3 hover:text-ink" href="/gallery">Gallery</Link>
+        <Link className="py-3 hover:text-ink" href="/#how-it-works">How it works</Link>
       </nav>
     </header>
   );
@@ -40,7 +40,7 @@ async function AccountArea() {
     return (
       <>
         <Link className="btn-quiet" href="/login">Sign in</Link>
-        <Link className="btn-secondary py-2" href="/signup">Create account</Link>
+        <Link className="btn-secondary hidden py-2 sm:inline-flex" href="/signup">Create account</Link>
       </>
     );
   }

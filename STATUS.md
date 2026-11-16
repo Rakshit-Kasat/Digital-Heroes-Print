@@ -37,13 +37,20 @@ Locked choices: GBP + 20% VAT (setting) · Stripe test mode · Gmail SMTP for em
 - Accounts by Claude in Chrome + scaffold (Opus, no agents): 5h 15% -> ~20%, week 3% -> ~6%, context 44% -> ~70%. Screenshots are the main cost.
 
 ## Next step (resume here)
-Rakshit is away until morning and said: complete everything autonomously (UI/UX with shadcn-type skills found online, no "AI slop"; tests; docs).
-DONE 2026-11-17 night: full E2E on localhost with test customer g2hklic+customer@gmail.com (in scripts/seed.ts): signup -> design -> Stripe test pay -> DH-001005 paid, INV-001005, proof v1 -> approve -> PDF/PNG/SVG print files -> admin production -> completed; 6 emails sent; Stripe event pending_webhooks 0 (live webhook delivered). Claude may not enter credentials on the production host, so the live site is checked via curl + webhook only.
-Findings for the UX pass: approve checkbox has accessible name "on" (label not associated); unit price shows £0.18 for 250 x = £44.41 (rounding display); dates mix UTC (file names) and local time (UI) -> use Europe/London.
-1. DONE: safe-check. shadcn skill = USE WITH CARE, NOT installed (needs `shadcn init`, which replaces our tokens/globals.css with the stock shadcn look; unpinned `npx shadcn@latest` on load). vercel web-design-guidelines = SAFE, installed at .claude/skills/web-design-guidelines (copied reviewed file). Fixed: UK time zone on dates, precise unit price. Checkbox "on" finding was a false alarm (label wraps it).
-2. ux-auditor agent + design-critique/accessibility skills at desktop + 375px; fix in own components (shadcn primitives only where they help).
-3. critic (Opus) + security-auditor (Haiku) agents (approved). Include: customer GET /files/print/<id> must 404; customer cannot call admin actions; RLS check script. Fix, then `vercel deploy --prod -Q "C:/Users/raksh/.vercel-dh" --scope digital-heroes-print`.
-4. Phase 10: README (credentials from scripts/seed.ts, schema), docs/DECISIONS.md, docs/LEARN.md, /handover, /retro.
+Rakshit is away until morning: complete everything autonomously. UX audit fixes DONE (uncommitted at time of writing: globals.css focus/44px/border, header mobile, error.tsx (uses `retry` prop in Next 16), not-found.tsx, footer contact, home CTA + copy, print-sheet attr escaping, quick-quote aria-live, configurator aria-describedby, auth email attrs). README rewritten (credentials from seed). tsc/eslint/33 tests pass.
+Critic findings TO FIX (service.ts etc.):
+ 1. Fulfilment lost if success page claims paid_at then fulfil throws: webhook gets markPaid=false and 200s. Fix: webhook returns 500 (Stripe retries) or runs fulfil when paid but no invoice.
+ 2. Server trusts client csvRows: parse CSV server-side in createOrderFromDesign; reject csvPath if !supports_csv.
+ 3. regenerateProof/uploadProof allowed at any stage: allow only order/artwork/proof with paid_at.
+ 4. Old print_files stay "ready" after a new proof: delete print_files in storeProof.
+ 5. requestChanges writes proof before checking order is in proof.
+ 6. report_division_throughput counts unpaid quotes (left join): new migration with filter.
+ 11. Order page unit = line_total/qty includes setup: subtract setup (use snapshot/itemsPence).
+ 13. markPaid: check amount_total/currency vs order.
+ 14. reorder: require source paid.
+ 15. schema.ts:31 image path prefix check: reject "..".
+ Document as known limits (DECISIONS/HANDOVER): 7 reports/Xero no paging >1000 rows; 8 proof version race; 9 order create not atomic (RPC later); 10 CSV merge in after() no queue; 12 unit_price_pence int.
+Then: security-auditor findings (agent running), commit, `npm run build`, `vercel deploy --prod -Q "C:/Users/raksh/.vercel-dh" --scope digital-heroes-print`, curl-check live, docs/DECISIONS.md, docs/LEARN.md, /handover, usage log.
 
 ## Older notes
 Phase 1 (schema + RLS + seed) once `.env.local` is filled. Start a fresh session (Sonnet) with:

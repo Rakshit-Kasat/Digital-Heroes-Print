@@ -23,7 +23,7 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next: strin
       )}
       <div>
         <label className="label" htmlFor="email">Email</label>
-        <input className="field" id="email" name="email" type="email" autoComplete="email" defaultValue={v.email} required />
+        <input className="field" id="email" name="email" type="email" autoComplete="email" spellCheck={false} autoCapitalize="none" defaultValue={v.email} required />
       </div>
       <div>
         <label className="label" htmlFor="password">Password</label>

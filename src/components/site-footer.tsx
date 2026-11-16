@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+// The studio inbox, taken from the sending address so there is one place to change it.
+const CONTACT = process.env.EMAIL_FROM?.match(/<(.+)>/)?.[1] ?? process.env.SMTP_USER ?? "";
+
 export function SiteFooter() {
   return (
     <footer className="mt-24 border-t border-hairline">
@@ -7,11 +10,12 @@ export function SiteFooter() {
         <div>
           <p className="font-display font-bold text-ink">Digital Heroes Print</p>
           <p className="mt-2 max-w-xs">Labels, race numbers, MTB boards, stamps, trophies and laser-cut work, made from artwork you approve.</p>
+          {CONTACT && <p className="mt-3">Questions about an order? Email <a className="link" href={`mailto:${CONTACT}`}>{CONTACT}</a>. We reply within one working day.</p>}
         </div>
-        <div className="flex flex-col gap-2">
-          <Link className="hover:text-ink" href="/products">All products</Link>
-          <Link className="hover:text-ink" href="/gallery">Gallery</Link>
-          <Link className="hover:text-ink" href="/account">Your account</Link>
+        <div className="flex flex-col">
+          <Link className="py-1.5 hover:text-ink" href="/products">All products</Link>
+          <Link className="py-1.5 hover:text-ink" href="/gallery">Gallery</Link>
+          <Link className="py-1.5 hover:text-ink" href="/account">Your account</Link>
         </div>
         <p>Test environment: payments run in Stripe test mode. Use card 4242 4242 4242 4242, any future date and any CVC.</p>
       </div>

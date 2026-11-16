@@ -135,7 +135,7 @@ async function Order({ params }: Pick<PageProps<"/account/orders/[id]">, "params
               {item?.csv_rows ? (<><dt className="text-steel">Names</dt><dd>{item.csv_rows} rows from your CSV</dd></>) : null}
             </dl>
             <dl className="mt-4 grid grid-cols-[1fr_auto] gap-y-1.5 border-t border-hairline pt-3">
-              <dt className="text-steel">{item?.quantity.toLocaleString("en-GB")} × {formatMoney(item?.unit_price_pence ?? 0, "GBP", true)}{item?.discount_rate ? ` (${Math.round(item.discount_rate * 100)}% volume discount)` : ""}</dt>
+              <dt className="text-steel">{item?.quantity.toLocaleString("en-GB")} × {formatMoney(item ? item.line_total_pence / item.quantity : 0, "GBP", true)}{item?.discount_rate ? ` (${Math.round(item.discount_rate * 100)}% volume discount)` : ""}</dt>
               <dd className="text-right">{formatMoney((item?.line_total_pence ?? 0) - (snap?.setupPence ?? 0))}</dd>
               {snap?.setupPence ? (<><dt className="text-steel">Setup</dt><dd className="text-right">{formatMoney(snap.setupPence)}</dd></>) : null}
               <dt className="text-steel">Subtotal</dt><dd className="text-right">{formatMoney(data.subtotal_pence)}</dd>

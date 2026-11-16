@@ -122,14 +122,14 @@ export function Configurator({ product, templates, divisionSlug }: { product: Pr
               {price.nextTier && <p className="mt-2 text-sm text-success">Order {price.nextTier.min.toLocaleString("en-GB")}+ to save {Math.round(price.nextTier.discount * 100)}%.</p>}
             </>
           ) : (
-            <ul className="space-y-1 text-sm text-danger">{errors.map((e) => <li key={e}>{e}</li>)}</ul>
+            <ul id="config-errors" className="space-y-1 text-sm text-danger">{errors.map((e) => <li key={e}>{e}</li>)}</ul>
           )}
         </div>
 
         {state.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
         <div className="flex flex-col gap-2 sm:flex-row">
-          <button className="btn-primary flex-1" name="mode" value="design" disabled={!price || pending || !template}>Design it online</button>
-          <button className="btn-secondary flex-1" name="mode" value="upload" disabled={!price || pending}>Upload print-ready file</button>
+          <button className="btn-primary flex-1" name="mode" value="design" disabled={!price || pending || !template} aria-describedby={errors.length ? "config-errors" : undefined}>Design it online</button>
+          <button className="btn-secondary flex-1" name="mode" value="upload" disabled={!price || pending} aria-describedby={errors.length ? "config-errors" : undefined}>Upload print-ready file</button>
         </div>
         <p className="text-xs text-steel">You will see a proof before anything is printed.{product.supports_csv ? " Names and numbers can be merged from a CSV in the next step." : ""}</p>
       </form>

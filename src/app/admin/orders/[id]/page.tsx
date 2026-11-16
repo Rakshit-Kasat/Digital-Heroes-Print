@@ -46,7 +46,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
   const [{ data: o }, { data: emails }] = await Promise.all([
     supabase.from("orders").select(`id, number, status, subtotal_pence, vat_pence, total_pence, currency, created_at, paid_at, archived_at, reorder_of, stripe_payment_intent,
       profiles(full_name, email, company, phone), invoices(number), order_events(id, from_status, to_status, note, created_at, profiles(full_name, email)),
-      order_items(id, quantity, unit_price_pence, discount_rate, csv_path, csv_rows, upload_kind, upload_path, doc, config, product_snapshot,
+      order_items(id, quantity, unit_price_pence, line_total_pence, discount_rate, csv_path, csv_rows, upload_kind, upload_path, doc, config, product_snapshot,
         proofs(id, version, status, note, created_at, proof_events(action, note, created_at, profiles(full_name, email, role))),
         print_files(id, kind, path, bytes, created_at))`).eq("id", id).maybeSingle(),
     supabase.from("email_log").select("template, to_email, status, error, created_at").eq("order_id", id).order("created_at", { ascending: false }).limit(20),
@@ -56,7 +56,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
   const status = o.status as Stage;
   const customer = o.profiles as unknown as { full_name: string | null; email: string; company: string | null; phone: string | null };
   const item = (o.order_items as unknown as Array<{
-    id: string; quantity: number; unit_price_pence: number; discount_rate: number; csv_path: string | null; csv_rows: number | null; upload_kind: string | null; upload_path: string | null; doc: unknown;
+    id: string; quantity: number; unit_price_pence: number; line_total_pence: number; discount_rate: number; csv_path: string | null; csv_rows: number | null; upload_kind: string | null; upload_path: string | null; doc: unknown;
     config: { widthMm: number; heightMm: number }; product_snapshot: { name: string; division?: string; material?: string; bleed_mm?: number; dpi?: number };
     proofs: Proof[]; print_files: Array<{ id: string; kind: string; path: string; bytes: number | null; created_at: string }>;
   }>)[0];
@@ -217,7 +217,7 @@ async function Job({ params }: Pick<PageProps<"/admin/orders/[id]">, "params">) 
               {item?.csv_path && (<><dt className="text-steel">CSV</dt><dd>{item.csv_rows} rows <a className="link ml-2" href={`/files/csv/${item.id}`}>Download</a></dd></>)}
             </dl>
             <dl className="mt-4 grid grid-cols-[1fr_auto] gap-y-1 border-t border-hairline pt-3">
-              <dt className="text-steel">Unit (after {Math.round(Number(item?.discount_rate ?? 0) * 100)}% tier)</dt><dd className="text-right">{formatMoney(item?.unit_price_pence ?? 0, "GBP", true)}</dd>
+              <dt className="text-steel">Unit (after {Math.round(Number(item?.discount_rate ?? 0) * 100)}% tier)</dt><dd className="text-right">{formatMoney(item ? item.line_total_pence / item.quantity : 0, "GBP", true)}</dd>
               <dt className="text-steel">Subtotal</dt><dd className="text-right">{formatMoney(o.subtotal_pence)}</dd>
               <dt className="text-steel">VAT</dt><dd className="text-right">{formatMoney(o.vat_pence)}</dd>
               <dt className="font-semibold">Total</dt><dd className="text-right font-semibold">{formatMoney(o.total_pence, o.currency)}</dd>

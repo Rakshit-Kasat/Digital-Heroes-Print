@@ -27,7 +27,7 @@ export function QuickQuote({ products, initial }: { products: QuoteProduct[]; in
   const price = useMemo(() => calculatePrice(s, product.pricing, { widthMm: clamp(cfg.w, s.width), heightMm: clamp(cfg.h, s.height), materialId: cfg.m, quantity: Math.round(clamp(cfg.q, s.quantity)) }, VAT_RATE), [cfg, s, product.pricing]);
 
   return (
-    <div className="panel p-5">
+    <div id="quote" className="panel scroll-mt-24 p-5">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-lg font-bold">Instant quote</h2>
         <span className="text-xs text-steel">updates as you type</span>
@@ -49,7 +49,7 @@ export function QuickQuote({ products, initial }: { products: QuoteProduct[]; in
         </div>
         <Num id="qq-q" label="Quantity" value={cfg.q} range={s.quantity} onChange={(q) => setCfg({ ...cfg, q })} />
       </div>
-      <dl className="mt-5 space-y-1.5 border-t border-hairline pt-4 text-sm">
+      <dl aria-live="polite" className="mt-5 space-y-1.5 border-t border-hairline pt-4 text-sm">
         <Row k="Per item" v={`${formatMoney(price.unitPence, "GBP", true)}${price.discountRate ? `  (−${Math.round(price.discountRate * 100)}% volume)` : ""}`} />
         {price.setupPence > 0 && <Row k="Setup" v={formatMoney(price.setupPence)} />}
         <Row k="VAT" v={formatMoney(price.vatPence)} />
