@@ -16,6 +16,8 @@ export const DEMO_USERS = [
   { email: "admin@dhprint.test", password: "Heroes-Admin-2026!", full_name: "Asha Admin", role: "admin" },
   { email: "customer@dhprint.test", password: "Heroes-Customer-2026!", full_name: "Charlie Customer", role: "customer", company: "Peak Trail Events" },
   { email: "second@dhprint.test", password: "Heroes-Second-2026!", full_name: "Sam Second", role: "customer", company: "Northside Bakery" },
+  // Real inbox (Gmail plus-address of the studio account) so order emails can be seen arriving.
+  { email: "g2hklic+customer@gmail.com", password: "Dh-cb6594a49b25-Test", full_name: "Rakshit Test", role: "customer", company: "Digital Heroes QA" },
 ];
 
 const tiers = (t: Array<[number, number]>) => t.map(([min, discount]) => ({ min, discount }));

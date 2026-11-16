@@ -37,9 +37,12 @@ Locked choices: GBP + 20% VAT (setting) · Stripe test mode · Gmail SMTP for em
 - Accounts by Claude in Chrome + scaffold (Opus, no agents): 5h 15% -> ~20%, week 3% -> ~6%, context 44% -> ~70%. Screenshots are the main cost.
 
 ## Next step (resume here)
-1. Rakshit: live end-to-end test on https://digital-heroes-print.vercel.app (Claude may not type credentials on the production host): sign up, design, pay with 4242 4242 4242 4242, check email + Stripe webhook delivery in the Stripe dashboard, admin flow.
-2. UI/UX pass (waiting on Rakshit's choice: ux-auditor + design-critique/accessibility skills with own components, or also shadcn after /safe-check). Mobile pass at 375px.
-3. critic (Opus) + security-auditor (Haiku) agents (pre-approved). Include: customer GET /files/print/<id> must 404; customer cannot call admin actions; RLS check script. Fix, then `vercel deploy --prod -Q "C:/Users/raksh/.vercel-dh" --scope digital-heroes-print`.
+Rakshit is away until morning and said: complete everything autonomously (UI/UX with shadcn-type skills found online, no "AI slop"; tests; docs).
+DONE 2026-11-17 night: full E2E on localhost with test customer g2hklic+customer@gmail.com (in scripts/seed.ts): signup -> design -> Stripe test pay -> DH-001005 paid, INV-001005, proof v1 -> approve -> PDF/PNG/SVG print files -> admin production -> completed; 6 emails sent; Stripe event pending_webhooks 0 (live webhook delivered). Claude may not enter credentials on the production host, so the live site is checked via curl + webhook only.
+Findings for the UX pass: approve checkbox has accessible name "on" (label not associated); unit price shows £0.18 for 250 x = £44.41 (rounding display); dates mix UTC (file names) and local time (UI) -> use Europe/London.
+1. Find + /safe-check UI skills (shadcn, Vercel web-design-guidelines etc.), install at project scope one at a time.
+2. ux-auditor agent + design-critique/accessibility skills at desktop + 375px; fix in own components (shadcn primitives only where they help).
+3. critic (Opus) + security-auditor (Haiku) agents (approved). Include: customer GET /files/print/<id> must 404; customer cannot call admin actions; RLS check script. Fix, then `vercel deploy --prod -Q "C:/Users/raksh/.vercel-dh" --scope digital-heroes-print`.
 4. Phase 10: README (credentials from scripts/seed.ts, schema), docs/DECISIONS.md, docs/LEARN.md, /handover, /retro.
 
 ## Older notes
