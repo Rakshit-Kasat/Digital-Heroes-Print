@@ -22,18 +22,26 @@ Locked choices: GBP + 20% VAT (setting) · Stripe test mode · Gmail SMTP for em
 - [x] Phase 3 — storefront + pricing + core engine, 33 tests (c8c7647, 7374b6f)
 - [x] Phase 4/5 — custom SVG designer, upload, CSV check, Stripe checkout, markPaid/fulfil (4716b8c). VERIFIED: test payment DH-001003 -> invoice + proof v1.
 - [x] Phase 6 (customer side) — /account dashboard, /account/orders/[id] proof review, /files route, reorder (5b16e49). VERIFIED: approve -> 4 print files; reorder -> Stripe £36.19 (DH-001004, left unpaid).
-- [ ] Phase 7 — admin: job board, order detail (advance, proof upload/regen, files), users, products, reports + Xero CSV, archive
+- [x] Phase 7 — admin console (1fdff79). VERIFIED: filters, stage move proof->production (gate), print-file downloads (PDF/ZIP), Xero CSV row, last-admin DB guard, customer redirected away from /admin. `npm run build` clean (40 routes, all PPR).
+  KNOWN (dev only): after an admin action that refreshes the auth cookie, Next dev throws "InvariantError ... cookies object" on re-render (makeUntrackedCookiesWithDevWarnings). Data saves fine. Re-check on the deployed build.
 - [ ] Phase 8 — mobile pass, critic + security-auditor, /gauntlet
 - [ ] Phase 9 — deploy (gate: Rakshit checks preview), Stripe webhook endpoint + secret
 - [ ] Phase 10 — README, DECISIONS.md, LEARN.md, /handover, /retro
 - [ ] Rakshit: Gmail App Password into SMTP_PASS (emails currently fail: 535 bad credentials; logged in email_log)
+- [ ] Rakshit: VERCEL_TOKEN (new account, scope "Digital Heroes Print") into .env.local. The global Vercel CLI login is `teamsocialtrap-7165` = OLD account: never deploy without `--token $VERCEL_TOKEN --scope digital-heroes-print`.
 
 ## Usage log
 - Build session 2026-11-16/17 (Opus): 5h window at 68% after phases 1-6 (customer side); week 12%.
 - Planning session (Opus): 5h window 10% -> 15%, weekly reset mid-session (now 3%).
 - Accounts by Claude in Chrome + scaffold (Opus, no agents): 5h 15% -> ~20%, week 3% -> ~6%, context 44% -> ~70%. Screenshots are the main cost.
 
-## Next step
+## Next step (resume here)
+1. Phase 8: mobile pass at 375px (home, product, designer, account, order, admin board); then critic (Opus) + security-auditor (Haiku) agents (pre-approved). Security checks to include: customer GET /files/print/<id> must 404; customer cannot call admin actions; RLS check script.
+2. Seed copy fix: "--" double hyphen in race bibs description (scripts/seed.ts).
+3. Phase 9: `vercel link`/deploy with VERCEL_TOKEN to team digital-heroes-print, set env vars (NEXT_PUBLIC_APP_URL = deployed URL), preview -> Rakshit checks -> production. Stripe: add webhook endpoint https://<domain>/api/stripe/webhook (checkout.session.completed, checkout.session.async_payment_succeeded), put signing secret in Vercel env STRIPE_WEBHOOK_SECRET. Supabase Auth: set Site URL + redirect URL to the domain.
+4. Phase 10: README (credentials from scripts/seed.ts, schema), docs/DECISIONS.md, docs/LEARN.md, /handover, /retro.
+
+## Older notes
 Phase 1 (schema + RLS + seed) once `.env.local` is filled. Start a fresh session (Sonnet) with:
 
 > Read STATUS.md, docs/PLAN.md and AGENTS.md in D:\Digital Heroes. `.env.local` is filled. Start Phase 1 (schema + RLS + seed), then continue phase by phase, teaching me as you go. Ask before using sub-agents.
