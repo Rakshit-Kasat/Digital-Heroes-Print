@@ -18,7 +18,6 @@
     "@resvg/resvg-js": "^2.6.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.0",
-    "fabric": "^7.4.0",
     "fflate": "^0.8.3",
     "next": "16.4.6",
     "nodemailer": "^10.6.0",
