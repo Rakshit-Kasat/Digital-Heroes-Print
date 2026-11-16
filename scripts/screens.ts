@@ -3,7 +3,8 @@
  * customer and as staff. Used for the redesign's before/after record.
  * Needs the dev server on http://localhost:3000 (local only: it signs in
  * with the seeded test accounts).
- * Run: node scripts/screens.ts <out-dir>      e.g. docs/redesign/before
+ * Run: node scripts/screens.ts <out-dir> [names]   e.g. docs/redesign/before
+ *      names: optional comma list of screens to shoot, e.g. home,product
  */
 import { mkdirSync } from "node:fs";
 import { chromium, type Browser, type Page } from "@playwright/test";
@@ -14,6 +15,7 @@ import { DEMO_USERS } from "./seed.ts";
 config({ path: ".env.local", quiet: true });
 const BASE = "http://localhost:3000";
 const out = process.argv[2] ?? "docs/redesign/shots";
+const only = process.argv[3]?.split(",");
 mkdirSync(out, { recursive: true });
 
 const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
@@ -43,12 +45,14 @@ async function signIn(page: Page, email: string, password: string) {
 
 const browser: Browser = await chromium.launch();
 for (const g of groups) {
+  const routes = Object.entries(g.routes).filter(([name]) => !only || only.includes(name));
+  if (!routes.length) continue;
   for (const [size, viewport] of Object.entries(SIZES)) {
     const ctx = await browser.newContext({ viewport, reducedMotion: "reduce" });
     const page = await ctx.newPage();
     if (g.who === "customer") await signIn(page, qa.email, qa.password);
     if (g.who === "admin") await signIn(page, admin.email, admin.password);
-    for (const [name, path] of Object.entries(g.routes)) {
+    for (const [name, path] of routes) {
       await page.goto(BASE + path, { waitUntil: "networkidle" });
       await page.screenshot({ path: `${out}/${name}-${size}.png`, fullPage: true });
       console.log("shot", name, size);

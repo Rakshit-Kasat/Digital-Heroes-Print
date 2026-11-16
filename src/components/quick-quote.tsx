@@ -30,7 +30,7 @@ export function QuickQuote({ products, initial }: { products: QuoteProduct[]; in
     <div id="quote" className="panel scroll-mt-24 p-5">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-lg font-bold">Instant quote</h2>
-        <span className="text-xs text-steel">updates as you type</span>
+        <span className="text-sm text-steel">updates as you type</span>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-3">
         <div className="col-span-2">
@@ -70,7 +70,7 @@ function Num({ id, label, value, range, onChange }: { id: string; label: string;
     <div>
       <label className="label" htmlFor={id}>{label}</label>
       <input id={id} className={`field ${bad ? "border-danger" : ""}`} type="number" inputMode="numeric" min={range.min} max={range.max} value={Number.isFinite(value) ? value : ""} onChange={(e) => onChange(e.target.valueAsNumber)} aria-invalid={bad} aria-describedby={`${id}-hint`} />
-      <p id={`${id}-hint`} className={`mt-1 text-xs ${bad ? "text-danger" : "text-steel"}`}>{range.min.toLocaleString("en-GB")}–{range.max.toLocaleString("en-GB")}</p>
+      <p id={`${id}-hint`} className={`mt-1 text-xs ${bad ? "text-danger" : "text-steel"}`}>{range.min.toLocaleString("en-GB")} to {range.max.toLocaleString("en-GB")}</p>
     </div>
   );
 }

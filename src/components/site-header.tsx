@@ -9,7 +9,7 @@ import { signOut } from "@/app/(auth)/actions";
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-hairline bg-paper/90 backdrop-blur supports-[backdrop-filter]:bg-paper/75 sticky top-0 z-30">
+    <header className="sticky top-0 z-30 border-b border-hairline bg-paper">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6">
         <Link href="/" className="flex items-center gap-2.5 font-display text-[17px] font-extrabold tracking-tight">
           <Mark /> Digital Heroes <span className="font-medium text-steel">Print</span>

@@ -6,6 +6,7 @@
 import "server-only";
 import { layoutForPrint } from "@/lib/print/render";
 import { toSvg } from "@/lib/design/svg";
+import type { CSSProperties } from "react";
 import type { DesignDoc } from "@/lib/design/types";
 
 /** Escape text for an SVG attribute (labels can carry customer text). */
@@ -15,10 +16,26 @@ export function renderDocSvg(doc: DesignDoc, guides = false, resolveImage?: (s: 
   return toSvg(layoutForPrint(doc), { guides, resolveImage });
 }
 
-export function PrintArt({ doc, className, label }: { doc: DesignDoc; className?: string; label: string }) {
+export function PrintArt({ doc, className, label, style }: { doc: DesignDoc; className?: string; label: string; style?: CSSProperties }) {
   const svg = renderDocSvg(doc).replace("<svg ", `<svg role="img" aria-label="${attr(label)}" style="width:100%;height:auto;display:block" `);
   // Safe: toSvg escapes every text value; the markup is produced by our own renderer.
-  return <div className={className} dangerouslySetInnerHTML={{ __html: svg }} />;
+  return <div className={className} style={style} dangerouslySetInnerHTML={{ __html: svg }} />;
+}
+
+/**
+ * A finished piece lying on the cutting mat: the artwork trimmed to its cut
+ * size (bleed hidden) and sized in mm × --k, so every piece on the same mat
+ * is to scale with the others and with the mat's 10 mm grid.
+ */
+export function MatPiece({ doc, label }: { doc: DesignDoc; label: string }) {
+  const b = doc.bleedMm;
+  return (
+    <div className="relative shrink-0 overflow-hidden shadow-[3px_3px_0_0_color-mix(in_oklab,var(--color-ink)_35%,transparent)]"
+      style={{ width: `calc(${doc.widthMm} * var(--k))`, height: `calc(${doc.heightMm} * var(--k))` }}>
+      <PrintArt doc={doc} label={label} className="absolute"
+        style={{ left: `calc(${-b} * var(--k))`, top: `calc(${-b} * var(--k))`, width: `calc(${doc.widthMm + 2 * b} * var(--k))` }} />
+    </div>
+  );
 }
 
 /** The hero "sheet": artwork with crop marks and dimension callouts. */
@@ -36,7 +53,7 @@ export function AnnotatedSheet({ doc, label }: { doc: DesignDoc; label: string }
     mark(x2 + b + 2, y2, x2 + b + 12, y2), mark(x2, y2 + b + 2, x2, y2 + b + 12),
   ].join("");
   const text = (x: number, y: number, s: string, anchor = "middle", rotate = 0) =>
-    `<text x="${x}" y="${y}" style="font-family:var(--font-red-hat-text),sans-serif" font-size="4.2" font-weight="600" fill="#5B6470" text-anchor="${anchor}"${rotate ? ` transform="rotate(${rotate} ${x} ${y})"` : ""}>${s}</text>`;
+    `<text x="${x}" y="${y}" style="font-family:var(--font-source-sans),sans-serif" font-size="4.2" font-weight="600" fill="#5B6470" text-anchor="${anchor}"${rotate ? ` transform="rotate(${rotate} ${x} ${y})"` : ""}>${s}</text>`;
   const dims = [
     `<line x1="${ox}" y1="${y2 + 16}" x2="${x2}" y2="${y2 + 16}" stroke="#5B6470" stroke-width="0.3" marker-start="url(#tick)" marker-end="url(#tick)"/>`,
     text((ox + x2) / 2, y2 + 21.5, `${W} mm trim`),

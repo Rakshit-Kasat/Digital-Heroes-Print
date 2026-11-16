@@ -5,7 +5,7 @@
  * engine) and the price (shared pricing engine) on every keystroke.
  */
 import { useSearchParams } from "next/navigation";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useState, type CSSProperties } from "react";
 import { calculatePrice, formatMoney, validateConfig, VAT_RATE } from "@/lib/pricing/calculate";
 import { instantiateTemplate } from "@/lib/design/template";
 import { LivePreview } from "@/components/live-preview";
@@ -37,9 +37,20 @@ export function Configurator({ product, templates, divisionSlug }: { product: Pr
   return (
     <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
       <div className="order-2 lg:order-1">
-        <div className="flex min-h-72 items-center justify-center rounded-lg bg-mist p-6 sm:p-10">
-          <div className="w-full" style={{ maxWidth: `${Math.min(560, Math.max(180, (previewSize.widthMm / Math.max(previewSize.heightMm, 1)) * 340))}px` }}>
-            {doc ? <LivePreview doc={doc} label={`${product.name} preview at ${w} by ${h} mm`} /> : <p className="text-steel">Upload your own artwork for this product.</p>}
+        {/*
+          The preview lies on the cutting mat at one scale (--k px per mm),
+          chosen so the piece fits; the mat's grid uses the same --k, so one
+          small square is always 10 mm and the size reads true at a glance.
+        */}
+        <div className="@container">
+          <div className="mat relative grid min-h-80 place-items-center rounded-lg px-6 pb-14 pt-14 sm:min-h-[27rem]"
+            style={{ "--k": `min(2.2px, calc((100cqi - 7rem) / ${pw + 2 * product.bleed_mm}), calc(19rem / ${ph + 2 * product.bleed_mm}))` } as CSSProperties}>
+            <div className="relative" style={{ width: `calc(${pw + 2 * product.bleed_mm} * var(--k))` }}>
+              <div aria-hidden className="dim-x absolute -top-8" style={{ left: `calc(${product.bleed_mm} * var(--k))`, right: `calc(${product.bleed_mm} * var(--k))` }}>{pw} mm</div>
+              <div aria-hidden className="dim-y absolute -right-9" style={{ top: `calc(${product.bleed_mm} * var(--k))`, bottom: `calc(${product.bleed_mm} * var(--k))` }}>{ph} mm</div>
+              {doc ? <LivePreview doc={doc} label={`${product.name} preview at ${w} by ${h} mm`} /> : <p className="text-mat-ink">Upload your own artwork for this product.</p>}
+            </div>
+            <p className="absolute bottom-3 left-4 rounded-[3px] bg-blade px-2 py-0.5 font-display text-sm font-semibold text-ink">Drawn to scale. One square is 10 mm.</p>
           </div>
         </div>
         <p className="mt-3 text-sm text-steel">
@@ -68,7 +79,7 @@ export function Configurator({ product, templates, divisionSlug }: { product: Pr
             <div className="flex flex-wrap gap-2">
               {s.presets.map((p) => {
                 const active = p.w === w && p.h === h;
-                return <button key={p.label} type="button" aria-pressed={active} onClick={() => { setW(p.w); setH(p.h); }} className={`chip border px-3 py-1.5 text-sm ${active ? "border-ink bg-ink text-paper" : "border-hairline bg-sheet text-ink hover:border-ink/50"}`}>{p.label}</button>;
+                return <button key={p.label} type="button" aria-pressed={active} onClick={() => { setW(p.w); setH(p.h); }} className={`chip min-h-9 border px-3 py-1.5 text-sm ${active ? "border-ink bg-ink text-paper" : "border-hairline bg-sheet text-ink hover:border-ink/50"}`}>{p.label}</button>;
               })}
             </div>
           </fieldset>
@@ -102,8 +113,8 @@ export function Configurator({ product, templates, divisionSlug }: { product: Pr
                 const active = q >= t.min && (next === undefined || q < next);
                 return (
                   <tr key={t.min} className={active ? "font-semibold text-ink" : "text-steel"}>
-                    <td className="py-0.5">{t.min.toLocaleString("en-GB")}{next ? `–${(next - 1).toLocaleString("en-GB")}` : "+"}</td>
-                    <td className="py-0.5 text-right">{t.discount ? `${Math.round(t.discount * 100)}% off` : "list price"}{active ? "  ●" : ""}</td>
+                    <td className="py-1 tabular-nums">{t.min.toLocaleString("en-GB")}{next ? ` to ${(next - 1).toLocaleString("en-GB")}` : " or more"}</td>
+                    <td className="py-1 text-right">{active && <span className="mr-2 rounded-[3px] bg-blade px-1.5 py-0.5 text-xs font-semibold text-ink">your quantity</span>}{t.discount ? `${Math.round(t.discount * 100)}% off` : "list price"}</td>
                   </tr>
                 );
               })}
@@ -115,11 +126,11 @@ export function Configurator({ product, templates, divisionSlug }: { product: Pr
           {price ? (
             <>
               <div className="flex items-baseline justify-between">
-                <span className="text-sm text-steel">{q.toLocaleString("en-GB")} × {formatMoney(price.unitPence, "GBP", true)}{price.setupPence ? ` + ${formatMoney(price.setupPence)} setup` : ""}</span>
-                <span className="font-display text-3xl font-extrabold">{formatMoney(price.totalPence)}</span>
+                <span className="text-sm tabular-nums text-steel">{q.toLocaleString("en-GB")} × {formatMoney(price.unitPence, "GBP", true)}{price.setupPence ? ` + ${formatMoney(price.setupPence)} setup` : ""}</span>
+                <span className="font-display text-4xl font-extrabold tracking-tight">{formatMoney(price.totalPence)}</span>
               </div>
-              <p className="mt-1 text-right text-xs text-steel">inc. {formatMoney(price.vatPence)} VAT · {formatMoney(price.subtotalPence)} ex VAT</p>
-              {price.nextTier && <p className="mt-2 text-sm text-success">Order {price.nextTier.min.toLocaleString("en-GB")}+ to save {Math.round(price.nextTier.discount * 100)}%.</p>}
+              <p className="mt-1 text-right text-sm tabular-nums text-steel">Includes {formatMoney(price.vatPence)} VAT. {formatMoney(price.subtotalPence)} before VAT.</p>
+              {price.nextTier && <p className="mt-2 text-sm text-success">Order {price.nextTier.min.toLocaleString("en-GB")} or more to save {Math.round(price.nextTier.discount * 100)}%.</p>}
             </>
           ) : (
             <ul id="config-errors" className="space-y-1 text-sm text-danger">{errors.map((e) => <li key={e}>{e}</li>)}</ul>

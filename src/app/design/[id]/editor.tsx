@@ -9,7 +9,7 @@
  * document and checkout recomputes the price from the database.
  */
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { layoutDesign } from "@/lib/design/layout";
 import { clientMeasure, usePrintFonts } from "@/lib/design/measure.client";
 import { blankDesign } from "@/lib/design/template";
@@ -252,7 +252,7 @@ export function Editor(p: EditorProps) {
         <div>
           <Link href={`/products/${p.divisionSlug}/${product.slug}`} className="text-sm text-steel hover:text-ink">← {product.name}</Link>
           <h1 className="mt-1 text-2xl font-extrabold">{p.name}</h1>
-          <p className="text-sm text-steel">{cfg.widthMm} × {cfg.heightMm} mm · {product.bleed_mm} mm bleed · {product.dpi} dpi output</p>
+          <p className="text-sm tabular-nums text-steel">{cfg.widthMm} × {cfg.heightMm} mm, {product.bleed_mm} mm bleed, {product.dpi} dpi output</p>
         </div>
         <p className="text-sm text-steel" aria-live="polite">
           {saving ? "Saving…" : dirty ? "Unsaved changes" : saved.at ? `Saved at ${saved.at.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}` : "All changes saved"}
@@ -294,9 +294,12 @@ export function Editor(p: EditorProps) {
                 <button type="button" className="btn-quiet text-sm" onClick={h.undo} disabled={!h.canUndo} aria-keyshortcuts="Control+Z">Undo</button>
                 <button type="button" className="btn-quiet text-sm" onClick={h.redo} disabled={!h.canRedo} aria-keyshortcuts="Control+Shift+Z">Redo</button>
               </div>
-              <div className="flex items-center justify-center rounded-lg bg-mist p-4 sm:p-8">
+              {/* The artboard lies on the cutting mat; the grid uses the artboard's own px-per-mm, so one square is 10 mm of the real piece. */}
+              <div className="@container">
+              <div className="mat flex min-h-72 items-center justify-center rounded-lg p-4 sm:p-8"
+                style={{ "--k": `min(6px, calc((100cqi - 4rem) / ${doc.widthMm + 2 * doc.bleedMm}), calc(36rem / ${doc.heightMm + 2 * doc.bleedMm}))` } as CSSProperties}>
                 {layout ? (
-                  <div className="sheet-shadow w-full bg-sheet" style={{ maxWidth: `${Math.min(900, Math.max(260, ((doc.widthMm + 2 * doc.bleedMm) / (doc.heightMm + 2 * doc.bleedMm)) * 560))}px` }}>
+                  <div className="bg-sheet shadow-[4px_4px_0_0_color-mix(in_oklab,var(--color-ink)_35%,transparent)]" style={{ width: `calc(${doc.widthMm + 2 * doc.bleedMm} * var(--k))` }}>
                     <DesignCanvas
                       layout={layout}
                       imageUrls={urls}
@@ -312,8 +315,9 @@ export function Editor(p: EditorProps) {
                   <div className="aspect-[4/3] w-full max-w-xl animate-pulse rounded bg-sheet" aria-label="Loading fonts" />
                 )}
               </div>
-              <p className="mt-2 text-xs text-steel">
-                Drag to move, corners to resize, the dot to rotate (Shift snaps to 15°). Arrow keys nudge by 1 mm. Black dashes: trim. Magenta dashes: safe area. The faded edge is bleed and is cut off.
+              </div>
+              <p className="mt-2 text-sm text-steel">
+                One square on the mat is 10 mm. Drag to move, corners to resize, the dot to rotate (Shift snaps to 15°). Arrow keys nudge by 1 mm. Black dashes: trim. Magenta dashes: safe area. The faded edge is bleed and is cut off.
               </p>
             </>
           ))}
@@ -333,10 +337,20 @@ export function Editor(p: EditorProps) {
           )}
         </section>
 
-        <aside className="space-y-6" aria-label="Properties and order">
+        <aside className="space-y-5" aria-label="Properties and order">
+          {/* Print check leads the column: it decides whether Pay is enabled. */}
+          <section className={`rounded-lg border-[1.5px] bg-sheet p-4 ${blocking.length ? "border-danger" : "border-ink"}`} aria-labelledby="pre-h">
+            <h2 id="pre-h" className="mb-2 text-lg font-bold">{blocking.length ? "Fix before printing" : "Print check"}</h2>
+            {blocking.length === 0 && notes.length === 0 && <p className="flex items-start gap-2 text-[15px] text-success"><span aria-hidden className="mt-1.5 size-2.5 shrink-0 rounded-full bg-success" />Ready to print: everything sits inside the safe area and all text fits.</p>}
+            <ul className="space-y-1.5 text-[15px]">
+              {blocking.map((m) => <li key={m} className="flex items-start gap-2 text-danger"><span aria-hidden className="mt-1.5 size-2.5 shrink-0 rounded-full bg-danger" />{m}</li>)}
+              {notes.map((w) => <li key={w.elementId + w.message} className="flex items-start gap-2 text-warning"><span aria-hidden className="mt-1.5 size-2.5 shrink-0 rounded-full bg-warning" />{w.message}</li>)}
+            </ul>
+          </section>
+
           {tab === "design" && !fileOnly && (
             <section className="panel p-4" aria-labelledby="props-h">
-              <h2 id="props-h" className="mb-3 text-base font-bold">{selected ? (selected.type === "text" ? "Text" : selected.type === "image" ? "Image" : "Shape") : "Page"}</h2>
+              <h2 id="props-h" className="mb-3 text-lg font-bold">{selected ? (selected.type === "text" ? "Text" : selected.type === "image" ? "Image" : "Shape") : "Page"}</h2>
               <Inspector doc={doc} el={selected} csv={product.supports_csv} onChange={update} onDelete={remove} onDuplicate={duplicate} onLayer={layer} />
               {doc.elements.length > 0 && (
                 <details className="mt-4 border-t border-hairline pt-3">
@@ -355,17 +369,8 @@ export function Editor(p: EditorProps) {
             </section>
           )}
 
-          <section className="panel p-4" aria-labelledby="pre-h">
-            <h2 id="pre-h" className="mb-2 text-base font-bold">Print check</h2>
-            {blocking.length === 0 && notes.length === 0 && <p className="text-sm text-success">Ready to print: everything sits inside the safe area and all text fits.</p>}
-            <ul className="space-y-1.5 text-sm">
-              {blocking.map((m) => <li key={m} className="text-danger">✕ {m}</li>)}
-              {notes.map((w) => <li key={w.elementId + w.message} className="text-warning">! {w.message}</li>)}
-            </ul>
-          </section>
-
           <section className="panel space-y-4 p-4" aria-labelledby="order-h">
-            <h2 id="order-h" className="text-base font-bold">Order</h2>
+            <h2 id="order-h" className="text-lg font-bold">Order</h2>
             <div>
               <label className="label" htmlFor="ed-material">Material</label>
               <select id="ed-material" className="field" value={cfg.materialId} onChange={(e) => setCfg((c) => ({ ...c, materialId: e.target.value }))}>
@@ -381,21 +386,19 @@ export function Editor(p: EditorProps) {
               {price ? (
                 <>
                   <div className="flex items-baseline justify-between">
-                    <span className="text-sm text-steel">{cfg.quantity.toLocaleString("en-GB")} × {formatMoney(price.unitPence, "GBP", true)}</span>
-                    <span className="font-display text-2xl font-extrabold">{formatMoney(price.totalPence)}</span>
+                    <span className="text-sm tabular-nums text-steel">{cfg.quantity.toLocaleString("en-GB")} × {formatMoney(price.unitPence, "GBP", true)}</span>
+                    <span className="font-display text-3xl font-extrabold tracking-tight">{formatMoney(price.totalPence)}</span>
                   </div>
-                  <p className="mt-0.5 text-right text-xs text-steel">{material?.name} · inc. {formatMoney(price.vatPence)} VAT{price.setupPence ? ` · includes ${formatMoney(price.setupPence)} setup` : ""}</p>
+                  <p className="mt-1 text-right text-sm tabular-nums text-steel">{material?.name}. Includes {formatMoney(price.vatPence)} VAT{price.setupPence ? ` and ${formatMoney(price.setupPence)} setup` : ""}.</p>
                 </>
               ) : <p className="text-sm text-danger">Fix the order details to see a price.</p>}
             </div>
             <button type="button" className="btn-primary w-full" disabled={blocking.length > 0 || paying || !price} onClick={pay}>
               {paying ? "Opening secure checkout…" : price ? `Pay ${formatMoney(price.totalPence)} securely` : "Pay securely"}
             </button>
-            <div className="flex items-center justify-between">
-              <button type="button" className="btn-quiet px-0 text-sm" onClick={save} disabled={saving || !dirty}>Save design</button>
-              <span className="text-xs text-steel">Stripe test mode: card 4242 4242 4242 4242</span>
-            </div>
-            <p className="text-xs text-steel">After payment you get a proof to approve. Nothing is printed until you approve it.</p>
+            <button type="button" className="btn-secondary w-full" onClick={save} disabled={saving || !dirty}>{saving ? "Saving…" : dirty ? "Save design" : "Design saved"}</button>
+            <p className="text-sm text-steel">After payment you get a proof to approve. Nothing is printed until you approve it.</p>
+            <p className="rounded-md bg-mist px-3 py-2 text-sm text-steel">Stripe test mode. Pay with card 4242 4242 4242 4242, any future date and any CVC.</p>
           </section>
         </aside>
       </div>
