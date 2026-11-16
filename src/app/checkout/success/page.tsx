@@ -47,10 +47,9 @@ async function Confirm({ searchParams }: PageProps<"/checkout/success">) {
 
   return (
     <div>
-      <p className="chip bg-success/10 text-success">Paid {formatMoney(order.total_pence, order.currency)}</p>
-      <h1 className="mt-4 text-4xl font-extrabold">Order {order.number} is confirmed</h1>
+      <h1 className="text-4xl font-extrabold">Order {order.number} is confirmed</h1>
       <p className="mt-3 text-steel">
-        Your invoice and a confirmation email are on their way. Your first proof is being prepared: check every name, number and colour, then approve it. Nothing is printed until you do.
+        We have taken your payment of <span className="font-semibold text-ink">{formatMoney(order.total_pence, order.currency)}</span>. Your invoice and a confirmation email are on their way. Your first proof is being prepared: check every name, number and colour, then approve it. Nothing is printed until you do.
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
         <Link className="btn-primary" href={`/account/orders/${order.id}`}>Review your proof</Link>

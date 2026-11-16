@@ -67,7 +67,7 @@ async function Users({ searchParams }: Pick<PageProps<"/admin/users">, "searchPa
                   <td className="px-4 py-3 text-right">{formatMoney(paid.reduce((a, o) => a + o.total_pence, 0))}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <span className={`chip ${u.role === "admin" ? "bg-accent/10 text-accent-ink" : "bg-mist text-steel"}`}>{u.role === "admin" ? "Admin" : "Customer"}</span>
+                      <span className={`chip ${u.role === "admin" ? "bg-accent/10 text-accent-deep" : "bg-mist text-steel"}`}>{u.role === "admin" ? "Admin" : "Customer"}</span>
                       {u.id !== me.id && (
                         <ActionForm action={setRole} tone="quiet" submit={u.role === "admin" ? "Make customer" : "Make admin"} confirm={u.role === "admin" ? "Confirm: remove admin" : "Confirm: give admin access"}>
                           <input type="hidden" name="userId" value={u.id} />

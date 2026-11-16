@@ -1,9 +1,9 @@
-@import "tailwindcss";
-
 /* Hallmark · shape: app screen · genre: editorial · theme: custom (Cutting mat, picked by Rakshit from three directions) · redesign: restyle
  * nav: kept · signature: products laid on a 10 mm cutting-mat grid at true relative scale · states: hover, active, focus, disabled, loading, empty, error
  * axes: paper/grotesk/mat-green · posture: restrained · contrast: pass · fold: pass */
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: H, the staff job page; the next action now leads, history follows */
+
+@import "tailwindcss";
 
 /*
  * Design tokens, "cutting mat" direction (60/30/10):
@@ -14,13 +14,13 @@
  */
 @theme {
   --color-paper: #f6f6f2;
-  --color-sheet: #ffffff;
+  --color-sheet: #fdfdfb;
   --color-ink: #1c211f;
   --color-steel: #59615d;
   --color-hairline: #d9ddd7;
   --color-mist: #ecede8;
   --color-accent: #2d5a4b;
-  --color-accent-ink: #1f4337;
+  --color-accent-deep: #1f4337;
   --color-mat: #2d5a4b;
   --color-mat-grid: #3c6a5a;
   --color-mat-major: #5a8877;

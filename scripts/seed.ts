@@ -88,7 +88,7 @@ const PRODUCTS: Array<Record<string, unknown> & { division: string; templates: T
   {
     division: "race-numbers", slug: "race-bibs", name: "Race bibs", sort: 1,
     summary: "Tear-proof Tyvek running numbers, merged from your entry CSV.",
-    description: "Upload your entry list and every bib is generated with the right name and number — no manual tweaking.",
+    description: "Upload your entry list and every bib is generated with the right name and number, with no manual tweaking.",
     config_schema: {
       width: { min: 120, max: 260, default: 210 }, height: { min: 90, max: 200, default: 148 },
       presets: [{ label: "A5 landscape 210 × 148", w: 210, h: 148 }, { label: "Kids 160 × 110", w: 160, h: 110 }],
