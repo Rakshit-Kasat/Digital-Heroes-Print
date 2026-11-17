@@ -134,7 +134,7 @@ All **VERIFIED**: see the checklist rows for print files, CSV merge, versioning,
 | Clean, commented code | VERIFIED by lint, type check and reviews |
 
 ## Found and fixed today
-1. **Customer could hit a dead end right after paying.** Proof v1 showed "Waiting for you" with no buttons for the second or so before the job moved to Proof sent. The page now says the proof is still being sent and offers a refresh. (`src/app/account/orders/[id]/page.tsx`). Fixed locally; **not yet deployed**.
+1. **Customer could hit a dead end right after paying.** Proof v1 showed "Waiting for you" with no buttons for the second or so before the job moved to Proof sent. The page now says the proof is still being sent and offers a refresh. (`src/app/account/orders/[id]/page.tsx`). Previewed, approved by Rakshit and **live** since 2026-11-17 (deployment digital-heroes-print-4v5fv44u9).
 2. ESLint was reading the installed design-skill scripts in `.claude/`; they are now ignored, and app code lints with 0 warnings.
 3. Browser tests extended to cover the full PRD checklist (change request, v2, gate, production, reorder, sign-up, designer drag, invoice).
 

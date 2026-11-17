@@ -1,6 +1,6 @@
 # Handover: Digital Heroes Print (web-to-print platform)
 
-Date: 2026-11-17 · Updated after the cutting-mat redesign went live (branch `redesign` merged into `main`) · No git remote yet
+Date: 2026-11-17 · Updated after the PRD check (docs/PRD-CHECK.md) and the proof-gap fix went live · No git remote yet
 
 Labels used below: **VERIFIED** means it was run or seen. **ASSUMED** means it was reasoned from the code or the docs but not run. **NOT CHECKED** means it was not looked at.
 
@@ -20,7 +20,8 @@ Rakshit picked direction B, "Cutting mat", from three options. Products sit on a
 - **Reviews:** critic (Opus) and ux-auditor (Sonnet) ran. Their findings are fixed or answered (see STATUS.md).
 - **Approval:** Rakshit approved the preview, then it went to production.
 - **Before and after:** screenshots in `docs/redesign/before` and `docs/redesign/after`; the audit is in `docs/redesign/AUDIT.md`.
-- **Demo data:** test runs added 4 paid orders and 2 unpaid quotes to `customer@dhprint.test`.
+- **Demo data:** test runs added paid orders (up to DH-001026) and unpaid quotes to `customer@dhprint.test`; the sign-up test deletes its own account.
+- **PRD check (2026-11-17):** every PRD section and testing-checklist item mapped to evidence in `docs/PRD-CHECK.md`. Suite now: unit 36/36, e2e 29 pass at three widths, paid flow 5/5 (change request, v2, gate, production, reorder, sign-up, designer drag), production output 2/2, RLS, build, lint 0 warnings, audit 0. One fix shipped: the customer order page explains the second between payment and Proof sent.
 
 ## 1. What was built
 
