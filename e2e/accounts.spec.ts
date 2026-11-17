@@ -8,12 +8,22 @@ test("customer account leads with proofs, then orders", async ({ page }, info) =
   const headings = page.getByRole("heading", { level: 2 });
   await expect(headings.first()).toHaveText("Proofs to review");
   await expect(page.getByRole("heading", { name: "Orders" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Saved designs" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your details" })).toBeVisible();
   await expectNoSidewaysScroll(page);
   await shoot(page, info, "account");
 
   const firstOrder = page.getByRole("table").getByRole("link").first();
   await firstOrder.click();
-  await expect(page.getByRole("list", { name: /Progress: stage \d of 6/ })).toBeAttached();
+  await page.waitForURL(/\/account\/orders\//);
+  await expect(page.getByRole("list", { name: /Progress: stage \d of 6/ })).toBeAttached({ timeout: 15_000 });
+  // Paid orders carry a downloadable PDF invoice.
+  const invoice = page.getByRole("link", { name: /Download invoice/ });
+  if (await invoice.count()) {
+    const res = await page.request.get((await invoice.getAttribute("href"))!);
+    expect(res.status()).toBe(200);
+    expect((await res.body()).subarray(0, 4).toString("latin1")).toBe("%PDF");
+  }
   await expectNoSidewaysScroll(page);
   await shoot(page, info, "order");
 });

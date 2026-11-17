@@ -110,6 +110,9 @@ async function Order({ params }: Pick<PageProps<"/account/orders/[id]">, "params
                   <p className="text-sm text-steel">You approved this version. Print files are made from exactly this artwork.</p>
                 ) : latest.status === "changes_requested" ? (
                   <p className="text-sm text-steel">We have your change request and will send version {latest.version + 1} for review.</p>
+                ) : latest.status === "pending" ? (
+                  // The proof is saved a moment before the job moves to "Proof sent".
+                  <p className="text-sm text-steel">This proof is still being sent to you. <a className="link" href={`/account/orders/${data.id}`}>Refresh the page</a> in a few seconds to approve it or ask for changes.</p>
                 ) : null}
               </div>
             </>
