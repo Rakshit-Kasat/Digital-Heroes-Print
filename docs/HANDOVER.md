@@ -1,6 +1,6 @@
 # Handover: Digital Heroes Print (web-to-print platform)
 
-Date: 2026-11-17 · Updated after the PRD check (docs/PRD-CHECK.md) and the proof-gap fix went live · No git remote yet
+Date: 2026-11-17 · Updated after the PRD check (docs/PRD-CHECK.md) and the proof-gap fix went live · Source: https://github.com/Rakshit-Kasat/Digital-Heroes-Print
 
 Labels used below: **VERIFIED** means it was run or seen. **ASSUMED** means it was reasoned from the code or the docs but not run. **NOT CHECKED** means it was not looked at.
 
